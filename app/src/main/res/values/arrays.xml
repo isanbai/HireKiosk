@@ -1,0 +1,18 @@
+<resources>
+    <string-array name="trigger_types">
+        <item>USB HID</item>
+        <item>BT HID</item>
+        <item>Headset</item>
+        <item>HTTP</item>
+        <item>BLE GATT</item>
+        <item>Volume Buttons</item>
+    </string-array>
+    <string-array name="trigger_values">
+        <item>USB_HID</item>
+        <item>BT_HID</item>
+        <item>HEADSET</item>
+        <item>HTTP</item>
+        <item>BLE_GATT</item>
+        <item>VOLUME</item>
+    </string-array>
+</resources>
