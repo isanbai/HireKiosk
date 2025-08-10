@@ -1,28 +1,11 @@
 package id.hirejob.kiosk
 
+import android.content.Intent
 import android.os.Bundle
-import android.view.View
-import androidx.activity.ComponentActivity
-import androidx.activity.enableEdgeToEdge
-import androidx.core.view.WindowCompat
-
-class MainActivity : ComponentActivity() {
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    enableEdgeToEdge()
-    setContentView(R.layout.activity_main)
-
-    // Fullscreen sederhana (mode kiosk dasar)
-    WindowCompat.getInsetsController(window, window.decorView).apply {
-      hide(android.view.WindowInsets.Type.systemBars())
-      systemBarsBehavior = View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-    }
-  }
-
-  override fun onBackPressed() {
-    // no-op agar tidak keluar app
-  }
-}
+import android.view.Menu
+import android.view.MenuItem
+import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.appbar.MaterialToolbar
 
 class MainActivity : AppCompatActivity() {
 
@@ -30,18 +13,20 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        findViewById<MaterialToolbar>(R.id.toolbar).let { setSupportActionBar(it) }
+        // kalau kamu pakai toolbar di layout:
+        val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_main, menu)
+        menuInflater.inflate(R.menu.main_menu, menu)
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_settings -> {
-                startActivity(Intent(this, SettingsActivity::class.java))
+                startActivity(Intent(this, settings.SettingsActivity::class.java))
                 true
             }
             else -> super.onOptionsItemSelected(item)
