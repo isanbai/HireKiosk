@@ -1,11 +1,10 @@
 plugins {
     id("com.android.application")
     kotlin("android")
-    // tambahkan kapt/ksp hanya kalau memang ada dependency yang butuh (mis Glide compiler, Room, dsb)
 }
 
 android {
-    namespace = "id.hirejob.kiosk" // samakan dengan package di AndroidManifest
+    namespace = "id.hirejob.kiosk"      // <- sesuai permintaan kamu
     compileSdk = 34
 
     defaultConfig {
@@ -26,15 +25,18 @@ android {
         }
     }
 
-    buildFeatures {
-        viewBinding = true
-    }
-
+    // AGP 8.7.x OK dengan Java/Kotlin 17 (Studio pakai JDK 21 tidak masalah)
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions { jvmTarget = "17" }
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+
+    buildFeatures {
+        viewBinding = true
+    }
 }
 
 dependencies {
