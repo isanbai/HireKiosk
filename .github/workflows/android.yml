@@ -31,3 +31,19 @@ jobs:
 
       - name: Build
         run: ./gradlew assembleDebug --stacktrace --info --warning-mode all
+
+      # Opsional tapi bagus: validasi wrapper
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v3
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Build Debug APK
+        run: ./gradlew --stacktrace assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug
+          path: app/build/outputs/apk/debug/*.apk
