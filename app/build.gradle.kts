@@ -1,6 +1,6 @@
 plugins {
-    id("com.android.application") version "8.6.1"
-    kotlin("android") version "2.0.0"
+    id("com.android.application")
+    kotlin("android")
     // tambahkan kapt/ksp hanya kalau memang ada dependency yang butuh (mis Glide compiler, Room, dsb)
 }
 
