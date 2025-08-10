@@ -28,10 +28,7 @@ jobs:
         run: |
           sdkmanager --licenses <<< "y"
           sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
-
-      - name: Build
-        run: ./gradlew assembleDebug --stacktrace --info --warning-mode all
-
+      
       # Opsional tapi bagus: validasi wrapper
       - name: Validate Gradle Wrapper
         uses: gradle/actions/wrapper-validation@v3
@@ -39,8 +36,8 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      - name: Build Debug APK
-        run: ./gradlew --stacktrace assembleDebug
+      - name: Build
+        run: ./gradlew assembleDebug --stacktrace --info --warning-mode all
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
