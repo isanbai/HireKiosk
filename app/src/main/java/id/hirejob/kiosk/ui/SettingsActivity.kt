@@ -1,6 +1,5 @@
 package id.hirejob.kiosk.ui
 
-import android.content.Intent
 import android.net.Uri
 import android.content.Intent
 import android.os.Bundle
@@ -9,6 +8,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.*
 import id.hirejob.kiosk.core.Prefs
 import id.hirejob.kiosk.core.TriggerType
+import id.hirejob.kiosk.core.KioskService
+import id.hirejob.kiosk.settings.WizardKioskActivity
 import id.hirejob.kiosk.R
 import kotlinx.coroutines.*
 import androidx.datastore.preferences.core.edit
@@ -78,18 +79,25 @@ class SettingsActivity : AppCompatActivity() {
 
             // Start/stop service buttons
             findPreference<Preference>("startService")?.setOnPreferenceClickListener {
-                requireContext().startForegroundService(Intent(requireContext(), id.hirejob.kiosk.core.KioskService::class.java))
+                requireContext().startForegroundService(Intent(requireContext(), KioskService::class.java))
                 true
             }
             findPreference<Preference>("stopService")?.setOnPreferenceClickListener {
-                requireContext().stopService(Intent(requireContext(), id.hirejob.kiosk.core.KioskService::class.java))
+                requireContext().stopService(Intent(requireContext(), KioskService::class.java))
                 true
             }
         }
 
         private fun openWizard() {
-            startActivity(Intent(this@SettingsActivity, 
-                id.hirejob.kiosk.settings.WizardKioskActivity::class.java))
+            startActivity(
+                Intent(
+                    requireContext(),
+                    // pilih salah satu sesuai lokasi kelasnya:
+                    // settings.WizardKioskActivity::class.java
+                    // atau kalau Wizard ada di paket ui yang sama:
+                    WizardKioskActivity::class.java
+                )
+            )
         }
 
         private fun bindBool(keyPref: String, keyStore: androidx.datastore.preferences.core.Preferences.Key<Boolean>) {

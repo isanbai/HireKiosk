@@ -36,5 +36,14 @@
         android:inputType="number"
         app:useSimpleSummaryProvider="true" />
 
+    <EditTextPreference
+        android:key="server_url"
+        android:title="Server URL"
+        app:useSimpleSummaryProvider="true" />
+
+    <ListPreference
+        android:key="env"
+        android:title="Environment"
+        app:useSimpleSummaryProvider="true" />
     <!-- …lanjutkan item lain; cukup pastikan semua pakai app:useSimpleSummaryProvider -->
 </PreferenceScreen>
