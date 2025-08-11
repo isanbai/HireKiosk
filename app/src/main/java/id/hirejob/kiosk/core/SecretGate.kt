@@ -12,6 +12,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.view.GestureDetectorCompat
 import android.view.GestureDetector
 import androidx.preference.PreferenceManager
+import id.hirejob.kiosk.core.Prefs
 
 /**
  * Gerbang rahasia untuk membuka Settings via triple-tap atau long-press.
@@ -81,7 +82,7 @@ class SecretGate(
             .setMessage("Masukkan PIN")
             .setView(input)
             .setPositiveButton("OK") { d, _ ->
-                if (input.text.toString() == savedPin) onUnlocked()
+                if (input.text.toString() == Prefs.pin(hostActivity)) onUnlocked()
                 else Toast.makeText(hostActivity, "PIN salah", Toast.LENGTH_SHORT).show()
                 d.dismiss()
             }

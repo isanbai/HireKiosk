@@ -1,18 +1,14 @@
 <resources>
-    <string-array name="trigger_types">
-        <item>USB HID</item>
-        <item>BT HID</item>
-        <item>Headset</item>
+    <string-array name="trigger_entries">
+        <item>None</item>
         <item>HTTP</item>
-        <item>BLE GATT</item>
-        <item>Volume Buttons</item>
+        <item>GPIO</item>
+        <item>BLE</item>
     </string-array>
     <string-array name="trigger_values">
-        <item>USB_HID</item>
-        <item>BT_HID</item>
-        <item>HEADSET</item>
-        <item>HTTP</item>
-        <item>BLE_GATT</item>
-        <item>VOLUME</item>
+        <item>none</item>
+        <item>http</item>
+        <item>gpio</item>
+        <item>ble</item>
     </string-array>
 </resources>

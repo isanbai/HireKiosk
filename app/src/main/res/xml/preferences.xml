@@ -1,68 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <EditTextPreference
-        android:key="video_uri"
-        android:title="Video File Path/URI"
-        android:summary="Path or URI to the video file" />
+    <PreferenceCategory android:title="Media">
+        <Preference
+            android:key="videoPath"
+            android:title="Video File Path/URI"
+            android:summary="Path or URI to the video file" />
 
-    <EditTextPreference
-        android:key="image_uri"
-        android:title="Image/GIF File Path/URI"
-        android:summary="Path or URI to the image or GIF file" />
+        <Preference
+            android:key="imagePath"
+            android:title="Image/GIF File Path/URI"
+            android:summary="Path or URI to the image or GIF file" />
 
-    <SwitchPreferenceCompat
-        android:key="loop_video"
-        android:title="Loop Video"
-        android:defaultValue="false" />
+        <SwitchPreferenceCompat
+            android:key="loopVideo"
+            android:title="Loop Video" />
+    </PreferenceCategory>
 
-    <ListPreference
-        android:key="trigger_type"
-        android:title="Trigger Source"
-        android:entries="@array/trigger_types"
-        android:entryValues="@array/trigger_values"
-        android:defaultValue="USB_HID" />
+    <PreferenceCategory android:title="Trigger">
+        <ListPreference
+            android:key="triggerSource"
+            android:title="Trigger Source"
+            android:entries="@array/trigger_entries"
+            android:entryValues="@array/trigger_values" />
 
-    <EditTextPreference
-        android:key="debounce_ms"
-        android:title="Debounce Time (ms)"
-        android:defaultValue="200"
-        android:inputType="number" />
+        <EditTextPreference
+            android:key="debounceMs"
+            android:title="Debounce Time (ms)" />
 
-    <EditTextPreference
-        android:key="min_active_ms"
-        android:title="Min Active Time (ms)"
-        android:defaultValue="1000"
-        android:inputType="number" />
+        <EditTextPreference
+            android:key="minActiveMs"
+            android:title="Min Active Time (ms)" />
 
-    <EditTextPreference
-        android:key="min_idle_ms"
-        android:title="Min Idle Time (ms)"
-        android:defaultValue="1000"
-        android:inputType="number" />
+        <EditTextPreference
+            android:key="minIdleMs"
+            android:title="Min Idle Time (ms)" />
+    </PreferenceCategory>
 
-    <SwitchPreferenceCompat
-        android:key="autostart"
-        android:title="Autostart on Boot"
-        android:defaultValue="false" />
+    <PreferenceCategory android:title="System">
+        <SwitchPreferenceCompat
+            android:key="autostart"
+            android:title="Autostart on Boot" />
 
-    <SwitchPreferenceCompat
-        android:key="kiosk_mode"
-        android:title="Enable Kiosk Mode"
-        android:defaultValue="false" />
+        <SwitchPreferenceCompat
+            android:key="kiosk"
+            android:title="Enable Kiosk Mode" />
 
-    <EditTextPreference
-        android:key="ble_service_uuid"
-        android:title="BLE Service UUID"
-        android:defaultValue="" />
+        <EditTextPreference
+            android:key="bleService"
+            android:title="BLE Service UUID" />
 
-    <EditTextPreference
-        android:key="ble_char_uuid"
-        android:title="BLE Characteristic UUID"
-        android:defaultValue="" />
+        <EditTextPreference
+            android:key="bleChar"
+            android:title="BLE Characteristic UUID" />
 
-    <SwitchPreferenceCompat
-        android:key="diagnostic"
-        android:title="Diagnostic Mode"
-        android:defaultValue="false" />
+        <SwitchPreferenceCompat
+            android:key="diag"
+            android:title="Diagnostic Mode" />
+    </PreferenceCategory>
 
 </PreferenceScreen>
