@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceFragmentCompat
 import id.hirejob.kiosk.R
+import id.hirejob.kiosk.ui.stopKioskModeIfAny
 
 class SettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,4 +20,11 @@ class SettingsActivity : AppCompatActivity() {
             setPreferencesFromResource(R.xml.preferences, rootKey)
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        // disable kiosk mode if needed
+        stopKioskModeIfAny()
+    }
+
 }

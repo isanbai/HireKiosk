@@ -16,6 +16,9 @@ import id.hirejob.kiosk.trigger.HttpTrigger
 import id.hirejob.kiosk.trigger.VolumeTrigger
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import id.hirejob.kiosk.settings.SettingsActivity
+import id.hirejob.kiosk.core.SecretGate
+import id.hirejob.kiosk.core.ensureKioskService
 
 class MainActivity : AppCompatActivity() {
 
@@ -25,12 +28,27 @@ class MainActivity : AppCompatActivity() {
     private var volumeTrigger: VolumeTrigger? = null
     private var httpTrigger: HttpTrigger? = null
     private var sm: StateMachine? = null
+    private lateinit var gate: SecretGate
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         b = ActivityMainBinding.inflate(layoutInflater)
         setContentView(b.root)
-        immersive()
+
+        val root = findViewById<View>(android.R.id.content)   // seluruh layar
+        gate = SecretGate(
+            hostActivity = this,
+            onUnlocked = { startActivity(Intent(this, SettingsActivity::class.java)) },
+            enableTripleTap = true,
+            enableLongPress = true,
+            cornerOnlyDp = 48  // gesture hanya di area 48dp kiri-atas; hapus kalau mau seluruh layar
+        )
+        gate.attachTo(root)
+        applyKioskUi()
+        
+        window.addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        startForegroundService(Intent(this, KioskService::class.java))
+        enableImmersive()
 
         video = VideoController(this, b.playerView)
         image = ImageController(b.imageView)
@@ -88,10 +106,13 @@ class MainActivity : AppCompatActivity() {
         }
 
         // tap to open settings
-        b.root.setOnLongClickListener {
-            startActivity(Intent(this, SettingsActivity::class.java))
-            true
-        }
+        // b.root.setOnLongClickListener {
+        //     startActivity(Intent(this, SettingsActivity::class.java))
+        //     true
+        // }
+
+
+
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
@@ -105,12 +126,25 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
-    private fun immersive() {
-        window.decorView.systemUiVisibility =
-            (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    or View.SYSTEM_UI_FLAG_FULLSCREEN
-                    or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
+    override fun onResume() {
+        super.onResume()
+        enableImmersive()
+        startKioskModeIfPossible()
+        ensureKioskService()
+        hideSystemBars()
+        // Re-apply immersive mode in case user swiped down the system bars
     }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) enableImmersive()
+        hideSystemBars()
+        // Re-apply immersive mode in case user swiped down the system bars
+
+    }
+
+    override fun onBackPressed() {
+        // jangan apa-apa, biar ga bisa keluar
+    }
+
 }

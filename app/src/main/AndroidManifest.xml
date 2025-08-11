@@ -27,18 +27,24 @@
         <!-- Launcher -->
         <activity
             android:name="id.hirejob.kiosk.MainActivity"
+            android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar"
             android:exported="true"
-            android:launchMode="singleTask">
+            android:launchMode="singleTask"
+            android:clearTaskOnLaunch="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.HOME" />
             </intent-filter>
         </activity>
 
         <!-- Settings -->
         <activity
             android:name="id.hirejob.kiosk.settings.SettingsActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar" />
 
         <!-- Boot autostart -->
         <receiver
@@ -51,10 +57,37 @@
             </intent-filter>
         </receiver>
 
+        <receiver
+            android:name=".device.AdminReceiver"
+            android:permission="android.permission.BIND_DEVICE_ADMIN"
+            android:exported="true">
+            <meta-data android:name="android.app.device_admin"
+                android:resource="@xml/device_admin" />
+            <intent-filter>
+                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED"/>
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".receiver.BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+            </intent-filter>
+        </receiver>
+
         <!-- Foreground service untuk HTTP/BLE (kalau sudah diimplementasikan) -->
         <service
             android:name="id.hirejob.kiosk.core.KioskService"
             android:exported="false"
-            android:foregroundServiceType="connectedDevice|dataSync" />
+            android:foregroundServiceType="mediaPlayback" />
+
+        <service
+            android:name=".kiosk.KioskWatcher"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback|dataSync" />
+            
     </application>
 </manifest>

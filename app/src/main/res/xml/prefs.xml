@@ -2,6 +2,15 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <!-- PIN admin -->
+    <EditTextPreference
+        android:key="adminPin"
+        android:title="Admin PIN"
+        android:dialogTitle="Ubah PIN Admin"
+        android:inputType="numberPassword"
+        android:defaultValue="2580"
+        app:useSimpleSummaryProvider="true" />
+        
     <!-- contoh entri; biarkan entri lain tetap, yang penting ganti atribut -->
     <EditTextPreference
         android:key="bleServiceUuid"
