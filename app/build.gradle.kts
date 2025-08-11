@@ -1,11 +1,10 @@
 plugins {
     id("com.android.application")
-    kotlin("android") // atau id("org.jetbrains.kotlin.android")
-    //id("org.jetbrains.kotlin.kapt")
+    kotlin("android")
 }
 
 android {
-    namespace = "id.hirejob.kiosk"      // <- sesuai permintaan kamu
+    namespace = "id.hirejob.kiosk"
     compileSdk = 34
 
     defaultConfig {
@@ -14,11 +13,17 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
+
+        // HTTP trigger default port
+        buildConfigField("int", "DEFAULT_HTTP_PORT", "8765")
     }
 
     buildTypes {
-        release {
+        debug {
             isMinifyEnabled = false
+        }
+        release {
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -26,46 +31,41 @@ android {
         }
     }
 
-    // AGP 8.7.x OK dengan Java/Kotlin 17 (Studio pakai JDK 21 tidak masalah)
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
+    kotlin { jvmToolchain(17) }
 
-    buildFeatures {
+    // View Binding simple
+    buildFeatures { 
         viewBinding = true
+        buildConfig = true 
     }
 }
 
 dependencies {
-    // Core AndroidX
-    implementation("androidx.core:core-ktx:1.13.1")
-    implementation("androidx.appcompat:appcompat:1.7.0")
-    implementation("com.google.android.material:material:1.12.0")
-    implementation("androidx.activity:activity-ktx:1.9.1")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.4")
-    implementation("androidx.media:media:1.7.0") // MediaSessionCompat
+    // Media3 ExoPlayer
+    implementation("androidx.media3:media3-exoplayer:1.4.1")
+    implementation("androidx.media3:media3-ui:1.4.1")
 
-    // ExoPlayer (video)
-    implementation("com.google.android.exoplayer:exoplayer:2.19.1")
-
-    // Glide (image/GIF)
+    // Glide (GIF support)
     implementation("com.github.bumptech.glide:glide:4.16.0")
-    //kapt("com.github.bumptech.glide:compiler:4.16.0")
 
-    // DataStore (preferences)
+    // DataStore
     implementation("androidx.datastore:datastore-preferences:1.1.1")
-
-    // HTTP server ringan
-    implementation("org.nanohttpd:nanohttpd:2.3.1")
 
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
 
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-
+    // Preference UI
     implementation("androidx.preference:preference-ktx:1.2.1")
+
+    // Embedded HTTP server
+    implementation("org.nanohttpd:nanohttpd:2.3.1")
+
+    // Core, appcompat, material
+    implementation("androidx.core:core-ktx:1.13.1")
+    implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("com.google.android.material:material:1.12.0")
 }

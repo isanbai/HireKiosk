@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- “play” triangle -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M36,24 L84,54 L36,84 z" />
+
+    <!-- small “HK” text-ish bars (simple shapes, optional) -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M18,42 h8 v24 h-8 z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M26,54 h14 v6 h-14 z" />
+</vector>

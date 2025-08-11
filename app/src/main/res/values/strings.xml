@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">HireKiosk</string>
-    <string name="menu_settings">Settings</string>
+    <string name="settings">Settings</string>
+    <string name="open_settings">Open Settings</string>
+    <string name="diagnostic_on">Diagnostic ON</string>
+    <string name="diagnostic_off">Diagnostic OFF</string>
 </resources>
