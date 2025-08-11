@@ -10,6 +10,7 @@ import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import id.hirejob.kiosk.R
 import id.hirejob.kiosk.trigger.HttpTrigger
+import id.hirejob.kiosk.core.HttpConstants
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 
@@ -28,7 +29,7 @@ class KioskService : Service() {
             val settings = Prefs.readAll(this@KioskService)
             val triggerFlow: Flow<Boolean> = when (settings.trigger) {
                 TriggerType.HTTP -> {
-                    http = HttpTrigger(settings.httpPort).also { it.start() }
+                    http = HttpTrigger(settings.httpPortStr).also { it.start() }
                     http!!.isOn
                 }
                 else -> MutableStateFlow(false) // other triggers managed in activity for now

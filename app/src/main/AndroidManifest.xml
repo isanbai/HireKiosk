@@ -1,80 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Network / HTTP -->
+    <!-- Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
-    <!-- Boot & foreground service -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <!-- Android 13+ (notifikasi untuk foreground service) -->
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
-    <!-- Keep screen / optional -->
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-
-    <!-- Storage (bergantung SDK) -->
-    <!-- ≤ Android 12L -->
-    <uses-permission
-        android:name="android.permission.READ_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32" />
-    <!-- Android 13+ -->
-    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-
-    <!-- Bluetooth / BLE -->
-    <!-- Legacy (≤ S-12) -->
-    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30"/>
-    <!-- Android 12+ -->
+    <!-- Bluetooth (31+) -->
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
-    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
-    <!-- BLE scan but still needed for ≤ Android 11 -->
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" android:maxSdkVersion="30"/>
-
-    <!-- (opsional) jika nanti pakai foreground-service khusus -->
-    <!-- <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" /> -->
-
-    <!-- Fitur deklaratif (tidak wajib, tapi bagus punya) -->
-    <uses-feature android:name="android.hardware.bluetooth" android:required="false"/>
-    <uses-feature android:name="android.hardware.bluetooth_le" android:required="false"/>
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation" />
+    <uses-feature
+        android:name="android.hardware.bluetooth_le"
+        android:required="false" />
 
     <application
         android:allowBackup="false"
         android:label="@string/app_name"
         android:icon="@mipmap/ic_launcher"
-        android:roundIcon="@mipmap/ic_launcher_round"
-        android:supportsRtl="true"
         android:usesCleartextTraffic="true"
-        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar">
+
+        <!-- Launcher -->
         <activity
-            android:name=".ui.SettingsActivity"
-            android:exported="false" />
-        <activity
-            android:name="id.hirejob.kiosk.settings.WizardKioskActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.MainActivity"
+            android:name="id.hirejob.kiosk.MainActivity"
             android:exported="true"
-            android:launchMode="singleTask"
-            android:resizeableActivity="true">
+            android:launchMode="singleTask">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service
-            android:name=".core.KioskService"
-            android:exported="false"
-            android:foregroundServiceType="connectedDevice|dataSync" />
 
+        <!-- Settings -->
+        <activity
+            android:name="id.hirejob.kiosk.settings.SettingsActivity"
+            android:exported="false" />
+
+        <!-- Boot autostart -->
         <receiver
-            android:name=".boot.BootReceiver"
+            android:name="id.hirejob.kiosk.boot.BootReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
             </intent-filter>
         </receiver>
+
+        <!-- Foreground service untuk HTTP/BLE (kalau sudah diimplementasikan) -->
+        <service
+            android:name="id.hirejob.kiosk.core.KioskService"
+            android:exported="false"
+            android:foregroundServiceType="connectedDevice|dataSync" />
     </application>
 </manifest>

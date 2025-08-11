@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity() {
             // choose trigger for UI process:
             val triggerFlow: Flow<Boolean> = when (s.trigger) {
                 TriggerType.HTTP -> {
-                    httpTrigger = HttpTrigger(s.httpPort).also { it.start() }
+                    httpTrigger = HttpTrigger(s.httpPortStr).also { it.start() }
                     httpTrigger!!.isOn
                 }
                 TriggerType.VOLUME, TriggerType.USB_HID, TriggerType.BT_HID -> volumeTrigger!!.isOn

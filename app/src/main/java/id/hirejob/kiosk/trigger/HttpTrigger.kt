@@ -5,11 +5,15 @@ import fi.iki.elonen.NanoHTTPD
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.json.JSONObject
+import id.hirejob.kiosk.core.HttpConstants
 
-class HttpTrigger(private val port: Int) : TriggerSource {
+class HttpTrigger(
+    private val host: String = HttpConstants.DEFAULT_HTTP_HOST,
+    private val port: Int = HttpConstants.DEFAULT_HTTP_PORT,
+    private val timeoutMs: Int = HttpConstants.SOCKET_READ_TIMEOUT,
+    ) : TriggerSource {
     private val _isOn = MutableStateFlow(false)
     override val isOn = _isOn.asStateFlow()
-
     private var server: NanoHTTPD? = null
 
     override fun start() {
@@ -42,7 +46,7 @@ class HttpTrigger(private val port: Int) : TriggerSource {
                 }
             }
         }.apply {
-            try { start(SOCKET_READ_TIMEOUT, false) } catch (t: Throwable) { Log.e("HttpTrigger","start",t) }
+            try { start(timeoutMs, false) } catch (t: Throwable) { Log.e("HttpTrigger","start",t) }
         }
     }
 

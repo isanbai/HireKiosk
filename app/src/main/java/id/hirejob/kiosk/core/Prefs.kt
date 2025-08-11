@@ -5,6 +5,8 @@ import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import id.hirejob.kiosk.BuildConfig
+import id.hirejob.kiosk.core.HttpConstants
 
 private val Context.dataStore by preferencesDataStore("kiosk_prefs")
 
@@ -23,6 +25,7 @@ object Prefs {
     val BLE_SERVICE_UUID = stringPreferencesKey("bleServiceUuid")
     val BLE_CHAR_UUID = stringPreferencesKey("bleCharUuid")
     val DIAGNOSTIC = booleanPreferencesKey("diagnostic")
+    val HTTP_PORT_STR = stringPreferencesKey("httpPortStr")
     val HTTP_PORT = intPreferencesKey("httpPort")
 
     suspend fun readAll(ctx: Context): Settings = ctx.dataStore.data.map { p ->
@@ -39,7 +42,8 @@ object Prefs {
             bleServiceUuid = p[BLE_SERVICE_UUID] ?: "",
             bleCharUuid = p[BLE_CHAR_UUID] ?: "",
             diagnostic = p[DIAGNOSTIC] ?: false,
-            httpPort = p[HTTP_PORT] ?: BuildConfig.DEFAULT_HTTP_PORT
+            httpPortStr = p[HTTP_PORT_STR] ?: HttpConstants.DEFAULT_HTTP_PORT_STR,
+            httpPort = p[HTTP_PORT] ?: HttpConstants.DEFAULT_HTTP_PORT
         )
     }.first()
 
@@ -61,5 +65,6 @@ data class Settings(
     val bleServiceUuid: String,
     val bleCharUuid: String,
     val diagnostic: Boolean,
-    val httpPort: Int
+    val httpPort: Int,
+    val httpPortStr : String
 )
