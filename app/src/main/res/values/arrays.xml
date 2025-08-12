@@ -6,9 +6,9 @@
         <item>BLE</item>
     </string-array>
     <string-array name="trigger_values">
-        <item>none</item>
-        <item>http</item>
-        <item>gpio</item>
-        <item>ble</item>
+        <item>None</item>
+        <item>HTTP</item>
+        <item>BLE</item>
+        <item>GPIO</item>
     </string-array>
 </resources>

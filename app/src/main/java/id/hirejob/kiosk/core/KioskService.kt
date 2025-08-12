@@ -11,6 +11,7 @@ import androidx.core.app.NotificationCompat
 import id.hirejob.kiosk.R
 import id.hirejob.kiosk.trigger.HttpTrigger
 import id.hirejob.kiosk.core.HttpConstants
+import id.hirejob.kiosk.core.Prefs
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 
