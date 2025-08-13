@@ -18,8 +18,8 @@ object Prefs {
     // ---------- NAMA KEY (String) ----------
     // const val DEFAULT_VIDEO_URI = "file:///mnt/shared/Pictures/trim.mp4"
     // const val DEFAULT_IMAGE_URI = "file:///mnt/shared/Pictures/7.png"
-    // const val DEFAULT_VIDEO_URI = "android.resource://id.hirejob.kiosk/${R.raw.anim}"
-    // const val DEFAULT_IMAGE_URI = "android.resource://id.hirejob.kiosk/${R.drawable.idle}"
+    val DEFAULT_VIDEO_URI = "android.resource://id.hirejob.kiosk/${R.raw.anim}"
+    val DEFAULT_IMAGE_URI = "android.resource://id.hirejob.kiosk/${R.drawable.idle}"
 
     const val K_VIDEO_URI        = "video_uri"
     const val K_IMAGE_URI        = "image_uri"

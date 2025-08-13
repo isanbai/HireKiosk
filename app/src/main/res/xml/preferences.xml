@@ -8,7 +8,7 @@
             android:key="video_uri"
             android:title="Video File Path/URI"
             app:useSimpleSummaryProvider="true" />
-
+        
         <EditTextPreference
             android:key="image_uri"
             android:title="Image/GIF File Path/URI"
@@ -25,7 +25,7 @@
             android:title="Trigger Source"
             app:entries="@array/trigger_entries"
             app:entryValues="@array/trigger_values"
-            android:defaultValue="HTTP"
+            android:defaultValue="VOLUME"
             app:useSimpleSummaryProvider="true" />
 
         <EditTextPreference

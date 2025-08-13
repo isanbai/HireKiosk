@@ -1,6 +1,8 @@
 package id.hirejob.kiosk.settings
 
 import android.os.Bundle
+import android.net.Uri
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceDataStore
@@ -20,6 +22,11 @@ import android.widget.Toast
 import id.hirejob.kiosk.R
 import id.hirejob.kiosk.ui.stopKioskModeIfAny
 import id.hirejob.kiosk.ui.startKioskModeIfPossible
+
+
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.preference.Preference
+
 
 class DsStore(private val context: Context) : PreferenceDataStore() {
     override fun putString(key: String, value: String?) {
@@ -112,6 +119,16 @@ class SettingsActivity : AppCompatActivity() {
                 }
             }
         }
+
+        findViewById<View>(R.id.resetVideo).setOnClickListener {
+            val vid = Uri.parse(Prefs.DEFAULT_VIDEO_URI)
+            val img = Uri.parse(Prefs.DEFAULT_IMAGE_URI)
+            lifecycleScope.launch {
+                Prefs.setVideoUri(this@SettingsActivity, vid.toString())
+                Prefs.setImageUri(this@SettingsActivity, img.toString())
+            }
+            toast("Media URI direset ke default")
+        }
     }
         
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -121,33 +138,6 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun Context.toast(s: String) =
         Toast.makeText(this, s, Toast.LENGTH_SHORT).show()
-
-
-    class SettingsFragment : PreferenceFragmentCompat() {
-        override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-            // bridge ke DataStore
-            preferenceManager.preferenceDataStore = DsStore(requireContext().applicationContext)
-            setPreferencesFromResource(R.xml.preferences, rootKey)
-
-            // angka only
-            findPreference<EditTextPreference>(Prefs.K_DEBOUNCE_MS)
-                ?.setOnBindEditTextListener { it.inputType = InputType.TYPE_CLASS_NUMBER }
-            findPreference<EditTextPreference>(Prefs.K_MIN_ACTIVE_MS)
-                ?.setOnBindEditTextListener { it.inputType = InputType.TYPE_CLASS_NUMBER }
-            findPreference<EditTextPreference>(Prefs.K_MIN_IDLE_MS)
-                ?.setOnBindEditTextListener { it.inputType = InputType.TYPE_CLASS_NUMBER }
-
-            // hint text
-            findPreference<EditTextPreference>(Prefs.K_VIDEO_URI)
-                ?.setOnBindEditTextListener { it.hint = "Path or URI to the video file" }
-            findPreference<EditTextPreference>(Prefs.K_IMAGE_URI)
-                ?.setOnBindEditTextListener { it.hint = "Path or URI to the image/GIF file" }
-
-            // summary otomatis
-            findPreference<ListPreference>(Prefs.K_TRIGGER_SOURCE)
-                ?.setSummaryProvider(ListPreference.SimpleSummaryProvider.getInstance())
-        }
-    }
 
     override fun onResume() {
         super.onResume()

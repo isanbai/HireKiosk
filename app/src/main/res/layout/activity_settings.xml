@@ -34,6 +34,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Simpan PIN" />
+
+        <Button
+            android:id="@+id/resetVideo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reset Video" />
+
     </LinearLayout>
 
     <!-- Divider kecil -->
