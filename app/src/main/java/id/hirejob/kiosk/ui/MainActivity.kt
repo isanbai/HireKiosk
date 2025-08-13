@@ -45,11 +45,15 @@ class MainActivity : AppCompatActivity() {
             cornerOnlyDp = 48  // gesture hanya di area 48dp kiri-atas; hapus kalau mau seluruh layar
         )
         gate.attachTo(root)
-        applyKioskUi()
         
         window.addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         // startForegroundService(Intent(this, KioskService::class.java))
         enableImmersive()
+        startKioskModeIfPossible()
+        ensureKioskService()
+        hideSystemBars()
+        applyKioskUi()
+        supportActionBar?.hide()
 
         video = VideoController(this, b.playerView)
         image = ImageController(b.imageView)

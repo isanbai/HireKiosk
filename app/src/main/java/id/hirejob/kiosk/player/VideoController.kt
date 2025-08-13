@@ -6,6 +6,8 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
+import androidx.media3.ui.AspectRatioFrameLayout
+import android.graphics.Color
 
 class VideoController(
     ctx: Context,
@@ -15,6 +17,11 @@ class VideoController(
         volume = 0f // muted by default
         playerView.player = this
         playerView.useController = false
+        // ⬇️ Tambahan agar video full-bleed
+        playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM
+        
+        playerView.setShutterBackgroundColor(Color.TRANSPARENT)
+        playerView.setKeepContentOnPlayerReset(true)
     }
 
     private var endListener: Player.Listener? = null
@@ -32,6 +39,7 @@ class VideoController(
         exo.repeatMode = if (loop) Player.REPEAT_MODE_ALL else Player.REPEAT_MODE_OFF
         exo.prepare()
         exo.playWhenReady = true
+        // exo.videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING
 
         if (!loop && onEnded != null) {
             endListener = object : Player.Listener {
