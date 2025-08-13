@@ -11,11 +11,21 @@ class VolumeTrigger(private val activity: Activity) : TriggerSource {
     override fun start() { /* handled via activity dispatch */ }
     override fun stop() { /* no-op */ }
 
+    // Tambahan: agar MainActivity bisa mematikan ketika video (non-loop) selesai
+    fun setState(on: Boolean) { _isOn.value = on }
+
     fun onKey(keyCode: Int, event: KeyEvent?): Boolean {
         if (event?.action == KeyEvent.ACTION_DOWN) {
             when (keyCode) {
-                KeyEvent.KEYCODE_VOLUME_UP -> { _isOn.value = true; return true }
-                KeyEvent.KEYCODE_VOLUME_DOWN -> { _isOn.value = false; return true }
+                KeyEvent.KEYCODE_VOLUME_UP -> { 
+                    _isOn.value = true; 
+                    return true 
+                }
+                KeyEvent.KEYCODE_VOLUME_DOWN -> { 
+                    // _isOn.value = false; 
+                    _isOn.value = !_isOn.value
+                    return true 
+                }
             }
         }
         return false

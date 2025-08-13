@@ -7,6 +7,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import id.hirejob.kiosk.R
 
 // Simpan DataStore di file "kiosk_prefs"
 private val Context.dataStore by preferencesDataStore(name = "kiosk_prefs")
@@ -15,6 +16,11 @@ enum class TriggerType { USB_HID, BT_HID, HEADSET, HTTP, BLE_GATT, VOLUME }
 
 object Prefs {
     // ---------- NAMA KEY (String) ----------
+    const val DEFAULT_VIDEO_URI = "file:///mnt/shared/Pictures/trim.mp4"
+    const val DEFAULT_IMAGE_URI = "file:///mnt/shared/Pictures/7.png"
+    // const val DEFAULT_VIDEO_URI = "android.resource://id.hirejob.kiosk/${R.raw.anim}"
+    // const val DEFAULT_IMAGE_URI = "android.resource://id.hirejob.kiosk/${R.drawable.idle}"
+
     const val K_VIDEO_URI        = "video_uri"
     const val K_IMAGE_URI        = "image_uri"
     const val K_TRIGGER_SOURCE   = "trigger_source"
@@ -55,8 +61,8 @@ object Prefs {
     /** Baca semua setting dengan default aman + migrasi port */
     suspend fun readAll(ctx: Context): Settings =
         ctx.dataStore.data.map { p ->
-            val triggerName = p[TRIGGER_SOURCE] ?: TriggerType.HTTP.name
-            val triggerEnum = runCatching { TriggerType.valueOf(triggerName) }.getOrElse { TriggerType.HTTP }
+            val triggerName = p[TRIGGER_SOURCE] ?: TriggerType.VOLUME.name
+            val triggerEnum = runCatching { TriggerType.valueOf(triggerName) }.getOrElse { TriggerType.VOLUME }
 
             val portFromInt  = p[HTTP_PORT]
             val portFromStr  = p[HTTP_PORT_STR]?.toIntOrNull()
@@ -64,8 +70,10 @@ object Prefs {
             val httpPortStr  = p[HTTP_PORT_STR] ?: httpPort.toString()
 
             Settings(
-                videoUri      = p[VIDEO_URI],
-                imageUri      = p[IMAGE_URI],
+                // UBAH: pakai default kalau belum ada di DataStore
+                videoUri      = p[VIDEO_URI] ?: DEFAULT_VIDEO_URI,
+                imageUri      = p[IMAGE_URI] ?: DEFAULT_IMAGE_URI,
+
                 loopVideo     = p[LOOP_VIDEO] ?: true,
                 trigger       = triggerEnum,
                 debounceMs    = p[DEBOUNCE_MS] ?: 200,
@@ -126,13 +134,13 @@ object Prefs {
     private fun iKey(name: String) = intPreferencesKey(name)
 
     // ===== Helper per-field (Flow)
-    fun videoUri(ctx: Context)        = ctx.dataStore.data.map { it[VIDEO_URI] ?: "" }
+    fun videoUri(ctx: Context) = ctx.dataStore.data.map { it[VIDEO_URI] ?: DEFAULT_VIDEO_URI }
     suspend fun setVideoUri(ctx: Context, v: String) = ctx.dataStore.edit { it[VIDEO_URI] = v }
 
-    fun imageUri(ctx: Context)        = ctx.dataStore.data.map { it[IMAGE_URI] ?: "" }
+    fun imageUri(ctx: Context) = ctx.dataStore.data.map { it[IMAGE_URI] ?: DEFAULT_IMAGE_URI }
     suspend fun setImageUri(ctx: Context, v: String) = ctx.dataStore.edit { it[IMAGE_URI] = v }
 
-    fun triggerSource(ctx: Context)   = ctx.dataStore.data.map { it[TRIGGER_SOURCE] ?: TriggerType.HTTP.name }
+    fun triggerSource(ctx: Context) = ctx.dataStore.data.map { it[TRIGGER_SOURCE] ?: TriggerType.VOLUME.name }
     suspend fun setTriggerSource(ctx: Context, v: String) = ctx.dataStore.edit { it[TRIGGER_SOURCE] = v }
 
     fun loopVideo(ctx: Context)       = ctx.dataStore.data.map { it[LOOP_VIDEO] ?: true }
@@ -166,10 +174,10 @@ object Prefs {
     suspend fun setHttpPort(ctx: Context, v: Int) = ctx.dataStore.edit { it[HTTP_PORT] = v }
 }
 data class Settings(
-    val videoUri: String? = null,
-    val imageUri: String? = null,
+    val videoUri: String? = "file:///mnt/shared/Pictures/trim.mp4",
+    val imageUri: String? = "file:///mnt/shared/Pictures/7.png",
     val loopVideo: Boolean = true,
-    val trigger: TriggerType = TriggerType.HTTP,
+    val trigger: TriggerType = TriggerType.VOLUME,
     val debounceMs: Int = 200,
     val minActiveMs: Int = 1000,
     val minIdleMs: Int = 1000,

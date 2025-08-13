@@ -31,19 +31,19 @@
         <EditTextPreference
             android:key="debounce_ms"
             android:title="Debounce Time (ms)"
-            android:defaultValue="50"
+            android:defaultValue="200"
             app:useSimpleSummaryProvider="true" />
 
         <EditTextPreference
             android:key="min_active_ms"
             android:title="Min Active Time (ms)"
-            android:defaultValue="500"
+            android:defaultValue="1000"
             app:useSimpleSummaryProvider="true" />
 
         <EditTextPreference
             android:key="min_idle_ms"
             android:title="Min Idle Time (ms)"
-            android:defaultValue="500"
+            android:defaultValue="1000"
             app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 

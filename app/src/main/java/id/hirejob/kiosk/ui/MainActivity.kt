@@ -23,6 +23,7 @@ import id.hirejob.kiosk.core.ensureKioskService
 class MainActivity : AppCompatActivity() {
 
     private lateinit var b: ActivityMainBinding
+    private var hasAutoPlayed = false
     private var video: VideoController? = null
     private var image: ImageController? = null
     private var volumeTrigger: VolumeTrigger? = null
@@ -47,7 +48,7 @@ class MainActivity : AppCompatActivity() {
         applyKioskUi()
         
         window.addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        startForegroundService(Intent(this, KioskService::class.java))
+        // startForegroundService(Intent(this, KioskService::class.java))
         enableImmersive()
 
         video = VideoController(this, b.playerView)
@@ -59,15 +60,8 @@ class MainActivity : AppCompatActivity() {
             // show current idle image at start
             image!!.show(s.imageUri?.let(Uri::parse))
 
-            // choose trigger for UI process:
-            val triggerFlow: Flow<Boolean> = when (s.trigger) {
-                TriggerType.HTTP -> {
-                    httpTrigger = HttpTrigger(s.httpPortStr).also { it.start() }
-                    httpTrigger!!.isOn
-                }
-                TriggerType.VOLUME, TriggerType.USB_HID, TriggerType.BT_HID -> volumeTrigger!!.isOn
-                else -> MutableStateFlow(false) // headset/ble to be added next steps
-            }
+            val triggerFlow: Flow<Boolean> = volumeTrigger!!.isOn
+
 
             sm = StateMachine(
                 scope = lifecycleScope,
@@ -82,7 +76,12 @@ class MainActivity : AppCompatActivity() {
                     UiState.ACTIVE -> {
                         b.playerView.visibility = View.VISIBLE
                         b.imageView.visibility = View.GONE
-                        s.videoUri?.let { video!!.play(Uri.parse(it), s.loopVideo) }
+                        s.videoUri?.let { uriStr ->
+                            video!!.play(Uri.parse(uriStr), s.loopVideo) {
+                                // play-once: balik ke IDLE
+                                volumeTrigger?.setState(false)
+                            }
+                        }
                     }
                     UiState.IDLE -> {
                         video!!.stop()
@@ -91,37 +90,34 @@ class MainActivity : AppCompatActivity() {
                         image!!.show(s.imageUri?.let(Uri::parse))
                     }
                 }
-                if (s.diagnostic) {
-                    b.root.announceForAccessibility("State ${st::class.simpleName}")
-                }
+                if (s.diagnostic) { b.root.announceForAccessibility("State ${st::class.simpleName}") }
             }.launchIn(lifecycleScope)
 
-            // start background service keep-alive if HTTP selected
-            if (s.trigger == TriggerType.HTTP) {
-                startForegroundService(Intent(this@MainActivity, KioskService::class.java))
-            }
+            volumeTrigger?.setState(true)
 
-            // optional kiosk
-            if (s.kiosk) KioskHelper.tryStartLockTask(this@MainActivity)
+            // if (s.kiosk) KioskHelper.tryStartLockTask(this@MainActivity)
         }
-
-        // tap to open settings
-        // b.root.setOnLongClickListener {
-        //     startActivity(Intent(this, SettingsActivity::class.java))
-        //     true
-        // }
-
-
 
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        if (volumeTrigger?.onKey(keyCode, event) == true) return true
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+            // Teruskan ke VolumeTrigger; jika di-handle, konsumsi event
+            return volumeTrigger?.onKey(keyCode, event) ?: true
+        }
         return super.onKeyDown(keyCode, event)
     }
 
+    override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+            // Konsumsi up-event agar sistem tidak mengubah volume
+            return true
+        }
+        return super.onKeyUp(keyCode, event)
+    }
+
     override fun onDestroy() {
-        httpTrigger?.stop()
+        volumeTrigger?.stop()
         video?.release()
         super.onDestroy()
     }
@@ -131,8 +127,7 @@ class MainActivity : AppCompatActivity() {
         enableImmersive()
         startKioskModeIfPossible()
         ensureKioskService()
-        hideSystemBars()
-        // Re-apply immersive mode in case user swiped down the system bars
+        hideSystemBars()      
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
