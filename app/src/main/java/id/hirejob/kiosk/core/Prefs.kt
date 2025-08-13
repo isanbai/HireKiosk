@@ -16,8 +16,8 @@ enum class TriggerType { USB_HID, BT_HID, HEADSET, HTTP, BLE_GATT, VOLUME }
 
 object Prefs {
     // ---------- NAMA KEY (String) ----------
-    const val DEFAULT_VIDEO_URI = "file:///mnt/shared/Pictures/trim.mp4"
-    const val DEFAULT_IMAGE_URI = "file:///mnt/shared/Pictures/7.png"
+    // const val DEFAULT_VIDEO_URI = "file:///mnt/shared/Pictures/trim.mp4"
+    // const val DEFAULT_IMAGE_URI = "file:///mnt/shared/Pictures/7.png"
     // const val DEFAULT_VIDEO_URI = "android.resource://id.hirejob.kiosk/${R.raw.anim}"
     // const val DEFAULT_IMAGE_URI = "android.resource://id.hirejob.kiosk/${R.drawable.idle}"
 
@@ -68,11 +68,13 @@ object Prefs {
             val portFromStr  = p[HTTP_PORT_STR]?.toIntOrNull()
             val httpPort     = portFromInt ?: portFromStr ?: HttpConstants.DEFAULT_HTTP_PORT
             val httpPortStr  = p[HTTP_PORT_STR] ?: httpPort.toString()
+            val defaultVideo = "android.resource://id.hirejob.kiosk/${R.raw.anim}"
+            val defaultImage = "android.resource://id.hirejob.kiosk/${R.drawable.idle}"
 
             Settings(
                 // UBAH: pakai default kalau belum ada di DataStore
-                videoUri      = p[VIDEO_URI] ?: DEFAULT_VIDEO_URI,
-                imageUri      = p[IMAGE_URI] ?: DEFAULT_IMAGE_URI,
+                videoUri      = p[VIDEO_URI] ?: defaultVideo,
+                imageUri      = p[IMAGE_URI] ?: defaultImage,
 
                 loopVideo     = p[LOOP_VIDEO] ?: true,
                 trigger       = triggerEnum,
@@ -134,10 +136,14 @@ object Prefs {
     private fun iKey(name: String) = intPreferencesKey(name)
 
     // ===== Helper per-field (Flow)
-    fun videoUri(ctx: Context) = ctx.dataStore.data.map { it[VIDEO_URI] ?: DEFAULT_VIDEO_URI }
+    fun videoUri(ctx: Context) = ctx.dataStore.data.map {
+        it[VIDEO_URI] ?: "android.resource://id.hirejob.kiosk/${R.raw.anim}"
+    }
     suspend fun setVideoUri(ctx: Context, v: String) = ctx.dataStore.edit { it[VIDEO_URI] = v }
 
-    fun imageUri(ctx: Context) = ctx.dataStore.data.map { it[IMAGE_URI] ?: DEFAULT_IMAGE_URI }
+    fun imageUri(ctx: Context) = ctx.dataStore.data.map {
+        it[IMAGE_URI] ?: "android.resource://id.hirejob.kiosk/${R.drawable.idle}"
+    }
     suspend fun setImageUri(ctx: Context, v: String) = ctx.dataStore.edit { it[IMAGE_URI] = v }
 
     fun triggerSource(ctx: Context) = ctx.dataStore.data.map { it[TRIGGER_SOURCE] ?: TriggerType.VOLUME.name }

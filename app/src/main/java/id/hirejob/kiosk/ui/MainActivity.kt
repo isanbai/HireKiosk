@@ -60,8 +60,14 @@ class MainActivity : AppCompatActivity() {
             // show current idle image at start
             image!!.show(s.imageUri?.let(Uri::parse))
 
-            val triggerFlow: Flow<Boolean> = volumeTrigger!!.isOn
-
+            val triggerFlow: Flow<Boolean> = when (s.trigger) {
+                TriggerType.HTTP -> {
+                    httpTrigger = HttpTrigger(s.httpPortStr).also { it.start() }
+                    httpTrigger!!.isOn
+                }
+                TriggerType.VOLUME, TriggerType.USB_HID, TriggerType.BT_HID -> volumeTrigger!!.isOn
+                else -> MutableStateFlow(false)
+            }
 
             sm = StateMachine(
                 scope = lifecycleScope,
@@ -78,8 +84,11 @@ class MainActivity : AppCompatActivity() {
                         b.imageView.visibility = View.GONE
                         s.videoUri?.let { uriStr ->
                             video!!.play(Uri.parse(uriStr), s.loopVideo) {
-                                // play-once: balik ke IDLE
-                                volumeTrigger?.setState(false)
+                                // play-once -> balik ke IDLE
+                                when (s.trigger) {
+                                    TriggerType.VOLUME -> volumeTrigger?.setState(false)
+                                    else -> { /* no-op */ }
+                                }
                             }
                         }
                     }
@@ -90,12 +99,18 @@ class MainActivity : AppCompatActivity() {
                         image!!.show(s.imageUri?.let(Uri::parse))
                     }
                 }
-                if (s.diagnostic) { b.root.announceForAccessibility("State ${st::class.simpleName}") }
+                if (s.diagnostic) b.root.announceForAccessibility("State ${st::class.simpleName}")
             }.launchIn(lifecycleScope)
 
+            // === AUTO-PLAY SEKALI SETELAH SM SIAP ===
             volumeTrigger?.setState(true)
 
-            // if (s.kiosk) KioskHelper.tryStartLockTask(this@MainActivity)
+            // (Opsional) Start service kalau HTTP
+            if (s.trigger == TriggerType.HTTP) {
+                startForegroundService(Intent(this@MainActivity, KioskService::class.java))
+            }
+
+            if (s.kiosk) KioskHelper.tryStartLockTask(this@MainActivity)
         }
 
     }
