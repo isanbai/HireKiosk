@@ -26,7 +26,7 @@
 
         <!-- Launcher -->
         <activity
-            android:name="id.hirejob.kiosk.MainActivity"
+            android:name="id.hirejob.kiosk.ui.MainActivity"
             android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar"
             android:exported="true"
             android:launchMode="singleTask"
