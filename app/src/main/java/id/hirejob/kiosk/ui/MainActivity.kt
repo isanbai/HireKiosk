@@ -14,11 +14,13 @@ import id.hirejob.kiosk.kiosk.KioskHelper
 import id.hirejob.kiosk.player.VideoController
 import id.hirejob.kiosk.trigger.HttpTrigger
 import id.hirejob.kiosk.trigger.VolumeTrigger
+import id.hirejob.kiosk.trigger.PowerTrigger
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import id.hirejob.kiosk.settings.SettingsActivity
 import id.hirejob.kiosk.core.SecretGate
 import id.hirejob.kiosk.core.ensureKioskService
+import android.util.Log
 
 class MainActivity : AppCompatActivity() {
 
@@ -27,6 +29,7 @@ class MainActivity : AppCompatActivity() {
     private var video: VideoController? = null
     private var image: ImageController? = null
     private var volumeTrigger: VolumeTrigger? = null
+    private var powerTrigger: PowerTrigger? = null
     private var httpTrigger: HttpTrigger? = null
     private var sm: StateMachine? = null
     private lateinit var gate: SecretGate
@@ -35,6 +38,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         b = ActivityMainBinding.inflate(layoutInflater)
         setContentView(b.root)
+        Log.d("MainActivity", "onCreate() — starting UI")
 
         val root = findViewById<View>(android.R.id.content)   // seluruh layar
         gate = SecretGate(
@@ -58,9 +62,12 @@ class MainActivity : AppCompatActivity() {
         video = VideoController(this, b.playerView)
         image = ImageController(b.imageView)
         volumeTrigger = VolumeTrigger(this)
+        powerTrigger = PowerTrigger(this)
 
         lifecycleScope.launch {
             val s = Prefs.readAll(this@MainActivity)
+            Log.d("MainActivity", "settings: trigger=${s.trigger} powerInvert=${s.powerInvert} loop=${s.loopVideo} video=${s.videoUri} image=${s.imageUri}")
+
             // show current idle image at start
             image!!.show(s.imageUri?.let(Uri::parse))
 
@@ -69,6 +76,12 @@ class MainActivity : AppCompatActivity() {
                     httpTrigger = HttpTrigger(s.httpPortStr).also { it.start() }
                     httpTrigger!!.isOn
                 }
+                TriggerType.POWER -> {
+                    Log.d("MainActivity", "Using POWER trigger (invert=${s.powerInvert})")
+                    powerTrigger = PowerTrigger(applicationContext, invert = s.powerInvert).also { it.start() }
+                    powerTrigger!!.isOn
+                }
+                
                 TriggerType.VOLUME, TriggerType.USB_HID, TriggerType.BT_HID -> volumeTrigger!!.isOn
                 else -> MutableStateFlow(false)
             }
@@ -82,6 +95,7 @@ class MainActivity : AppCompatActivity() {
             )
 
             sm!!.state.onEach { st ->
+                Log.d("MainActivity", "SM state = $st")
                 when (st) {
                     UiState.ACTIVE -> {
                         b.playerView.visibility = View.VISIBLE
@@ -107,7 +121,9 @@ class MainActivity : AppCompatActivity() {
             }.launchIn(lifecycleScope)
 
             // === AUTO-PLAY SEKALI SETELAH SM SIAP ===
-            volumeTrigger?.setState(true)
+            if (s.trigger == TriggerType.VOLUME) {
+                volumeTrigger?.setState(true)
+            }
 
             // (Opsional) Start service kalau HTTP
             if (s.trigger == TriggerType.HTTP) {

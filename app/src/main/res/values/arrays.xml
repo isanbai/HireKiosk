@@ -2,6 +2,7 @@
     <string-array name="trigger_entries">
         <item>None</item>
         <item>VOLUME</item>
+        <item>POWER</item>
         <item>HTTP</item>
         <item>GPIO</item>
         <item>BLE</item>
@@ -9,6 +10,7 @@
     <string-array name="trigger_values">
         <item>None</item>
         <item>VOLUME</item>
+        <item>POWER</item>
         <item>HTTP</item>
         <item>BLE</item>
         <item>GPIO</item>

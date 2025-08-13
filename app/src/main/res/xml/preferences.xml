@@ -53,6 +53,12 @@
             android:title="Autostart on Boot" />
 
         <SwitchPreferenceCompat
+            android:key="power_invert"
+            android:title="ON saat DISCHARGING (kebalikan)"
+            android:summary="Jika aktif: ON ketika tidak charging, OFF ketika charging"
+            android:defaultValue="true" />
+
+        <SwitchPreferenceCompat
             android:key="kiosk_mode"
             android:title="Enable Kiosk Mode" />
 

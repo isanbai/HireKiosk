@@ -10,6 +10,7 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
+import androidx.preference.SwitchPreferenceCompat
 import androidx.lifecycle.lifecycleScope
 import id.hirejob.kiosk.R
 import id.hirejob.kiosk.core.Prefs
@@ -48,6 +49,14 @@ class SettingsFragment : PreferenceFragmentCompat() {
         // bridge ke DataStore
         preferenceManager.preferenceDataStore = DsStore(requireContext().applicationContext)
         setPreferencesFromResource(R.xml.preferences, rootKey)
+
+        findPreference<SwitchPreferenceCompat>("power_invert")
+            ?.setOnPreferenceChangeListener { _, newValue ->
+            viewLifecycleOwner.lifecycleScope.launch {
+                Prefs.setPowerInvert(requireContext(), newValue as Boolean)
+            }
+            true
+        }
 
         findPreference<Preference>(Prefs.K_VIDEO_URI)?.setOnPreferenceClickListener {
             pickVideo.launch(arrayOf("video/*"))

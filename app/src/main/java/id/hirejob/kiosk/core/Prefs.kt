@@ -8,13 +8,15 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import id.hirejob.kiosk.R
+import androidx.datastore.preferences.core.booleanPreferencesKey
 
 // Simpan DataStore di file "kiosk_prefs"
 private val Context.dataStore by preferencesDataStore(name = "kiosk_prefs")
 
-enum class TriggerType { USB_HID, BT_HID, HEADSET, HTTP, BLE_GATT, VOLUME }
+enum class TriggerType { USB_HID, BT_HID, HEADSET, HTTP, BLE_GATT, VOLUME, POWER }
 
 object Prefs {
+    private val POWER_INVERT = booleanPreferencesKey("power_invert")
     // ---------- NAMA KEY (String) ----------
     // const val DEFAULT_VIDEO_URI = "file:///mnt/shared/Pictures/trim.mp4"
     // const val DEFAULT_IMAGE_URI = "file:///mnt/shared/Pictures/7.png"
@@ -73,6 +75,7 @@ object Prefs {
 
             Settings(
                 // UBAH: pakai default kalau belum ada di DataStore
+                powerInvert   = p[POWER_INVERT] ?: false,
                 videoUri      = p[VIDEO_URI] ?: defaultVideo,
                 imageUri      = p[IMAGE_URI] ?: defaultImage,
 
@@ -136,6 +139,11 @@ object Prefs {
     private fun iKey(name: String) = intPreferencesKey(name)
 
     // ===== Helper per-field (Flow)
+    fun powerInvert(ctx: Context) = ctx.dataStore.data.map { it[POWER_INVERT] ?: true }
+    suspend fun setPowerInvert(ctx: Context, value: Boolean) {
+        ctx.dataStore.edit { it[POWER_INVERT] = value }
+    }
+
     fun videoUri(ctx: Context) = ctx.dataStore.data.map {
         it[VIDEO_URI] ?: "android.resource://id.hirejob.kiosk/${R.raw.anim}"
     }
@@ -180,6 +188,7 @@ object Prefs {
     suspend fun setHttpPort(ctx: Context, v: Int) = ctx.dataStore.edit { it[HTTP_PORT] = v }
 }
 data class Settings(
+    val powerInvert: Boolean = true,
     val videoUri: String? = "file:///mnt/shared/Pictures/trim.mp4",
     val imageUri: String? = "file:///mnt/shared/Pictures/7.png",
     val loopVideo: Boolean = true,
