@@ -57,6 +57,8 @@ class DsStore(private val context: Context) : PreferenceDataStore() {
             Prefs.K_AUTOSTART  -> Prefs.setAutostart(context, value)
             Prefs.K_KIOSK_MODE -> Prefs.setKioskMode(context, value)
             Prefs.K_DIAGNOSTIC -> Prefs.setDiagnostic(context, value)
+            Prefs.K_POWER_INVERT -> Prefs.setPowerInvert(context, value)
+            else -> throw IllegalArgumentException("Unknown key: $key")
         }
     }
     override fun getBoolean(key: String, defValue: Boolean): Boolean = runBlocking {
@@ -65,6 +67,7 @@ class DsStore(private val context: Context) : PreferenceDataStore() {
             Prefs.K_AUTOSTART  -> Prefs.autostart(context).first()
             Prefs.K_KIOSK_MODE -> Prefs.kioskMode(context).first()
             Prefs.K_DIAGNOSTIC -> Prefs.diagnostic(context).first()
+            Prefs.K_POWER_INVERT -> Prefs.powerInvert(context).first()
             else -> defValue
         }
     }

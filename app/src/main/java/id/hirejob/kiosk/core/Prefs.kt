@@ -16,10 +16,11 @@ private val Context.dataStore by preferencesDataStore(name = "kiosk_prefs")
 enum class TriggerType { USB_HID, BT_HID, HEADSET, HTTP, BLE_GATT, VOLUME, POWER }
 
 object Prefs {
-    private val POWER_INVERT = booleanPreferencesKey("power_invert")
+    // private val POWER_INVERT = booleanPreferencesKey("power_invert")
     // ---------- NAMA KEY (String) ----------
     // const val DEFAULT_VIDEO_URI = "file:///mnt/shared/Pictures/trim.mp4"
     // const val DEFAULT_IMAGE_URI = "file:///mnt/shared/Pictures/7.png"
+    const val K_POWER_INVERT = "power_invert"
     val DEFAULT_VIDEO_URI = "android.resource://id.hirejob.kiosk/${R.raw.anim}"
     val DEFAULT_IMAGE_URI = "android.resource://id.hirejob.kiosk/${R.drawable.idle}"
 
@@ -42,6 +43,7 @@ object Prefs {
     const val K_HTTP_PORT    = "httpPort"
 
     // ---------- Preferences.Key ----------
+    val POWER_INVERT     = booleanPreferencesKey(K_POWER_INVERT)
     val VIDEO_URI        = stringPreferencesKey(K_VIDEO_URI)
     val IMAGE_URI        = stringPreferencesKey(K_IMAGE_URI)
     val TRIGGER_SOURCE   = stringPreferencesKey(K_TRIGGER_SOURCE)
@@ -101,6 +103,7 @@ object Prefs {
 
     /** Simpan semua field Settings */
     suspend fun saveSettings(ctx: Context, s: Settings) = write(ctx) {
+        this[POWER_INVERT]     = s.powerInvert
         s.videoUri?.let { this[VIDEO_URI] = it } ?: remove(VIDEO_URI)
         s.imageUri?.let { this[IMAGE_URI] = it } ?: remove(IMAGE_URI)
         this[LOOP_VIDEO]       = s.loopVideo

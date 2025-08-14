@@ -50,13 +50,13 @@ class SettingsFragment : PreferenceFragmentCompat() {
         preferenceManager.preferenceDataStore = DsStore(requireContext().applicationContext)
         setPreferencesFromResource(R.xml.preferences, rootKey)
 
-        findPreference<SwitchPreferenceCompat>("power_invert")
-            ?.setOnPreferenceChangeListener { _, newValue ->
-            viewLifecycleOwner.lifecycleScope.launch {
-                Prefs.setPowerInvert(requireContext(), newValue as Boolean)
-            }
-            true
-        }
+        // findPreference<SwitchPreferenceCompat>("power_invert")
+        //     ?.setOnPreferenceChangeListener { _, newValue ->
+        //     viewLifecycleOwner.lifecycleScope.launch {
+        //         Prefs.setPowerInvert(requireContext(), newValue as Boolean)
+        //     }
+        //     true
+        // }
 
         findPreference<Preference>(Prefs.K_VIDEO_URI)?.setOnPreferenceClickListener {
             pickVideo.launch(arrayOf("video/*"))
