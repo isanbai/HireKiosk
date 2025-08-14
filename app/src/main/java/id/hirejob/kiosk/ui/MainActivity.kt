@@ -23,8 +23,15 @@ import id.hirejob.kiosk.core.SecretGate
 import id.hirejob.kiosk.core.ensureKioskService
 import android.util.Log
 import id.hirejob.kiosk.R
+import kotlinx.coroutines.flow.MutableStateFlow
+import id.hirejob.kiosk.trigger.HidKeyboardTrigger
+import id.hirejob.kiosk.device.KioskPolicy
+import id.hirejob.kiosk.core.KioskWatcher
 
 class MainActivity : AppCompatActivity() {
+
+    private var cachedTrigger: TriggerType = TriggerType.VOLUME
+    private var cachedUsbHidKey: String = "F9"
 
     private lateinit var b: ActivityMainBinding
     private var overlayView: View? = null
@@ -33,6 +40,8 @@ class MainActivity : AppCompatActivity() {
     private var image: ImageController? = null
     private var volumeTrigger: VolumeTrigger? = null
     private var powerTrigger: PowerTrigger? = null
+    private var hidTrigger: HidKeyboardTrigger? = null
+    private val hidFlow = MutableStateFlow(false)
     private var httpTrigger: HttpTrigger? = null
     private var sm: StateMachine? = null
     private lateinit var gate: SecretGate
@@ -41,7 +50,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         b = ActivityMainBinding.inflate(layoutInflater)
         setContentView(b.root)
-        Log.d("MainActivity", "onCreate() — starting UI")
+        window.addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        // startForegroundService(Intent(this, KioskService::class.java))
+        startForegroundService(Intent(this, KioskWatcher::class.java))
+        enableImmersive()
+        supportActionBar?.hide()
+        // Log.d("MainActivity", "onCreate() — starting UI")
 
         val root = findViewById<View>(android.R.id.content)   // seluruh layar
         gate = SecretGate(
@@ -53,14 +67,12 @@ class MainActivity : AppCompatActivity() {
         )
         gate.attachTo(root)
         
-        window.addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        // startForegroundService(Intent(this, KioskService::class.java))
-        enableImmersive()
-        startKioskModeIfPossible()
-        ensureKioskService()
-        hideSystemBars()
+        KioskPolicy.apply(this)
         applyKioskUi()
-        supportActionBar?.hide()
+        // hideSystemBars()
+        // startKioskModeIfPossible()
+        // ensureKioskService()
+
 
         video = VideoController(this, b.playerView)
         image = ImageController(b.imageView)
@@ -71,6 +83,9 @@ class MainActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             val s = Prefs.readAll(this@MainActivity)
+            cachedTrigger = s.trigger
+            cachedUsbHidKey = s.usbHidKey
+            
             Log.d("MainActivity", "settings: trigger=${s.trigger} powerInvert=${s.powerInvert} loop=${s.loopVideo} video=${s.videoUri} image=${s.imageUri}")
 
             // show current idle image at start
@@ -86,8 +101,23 @@ class MainActivity : AppCompatActivity() {
                     powerTrigger = PowerTrigger(applicationContext, invert = s.powerInvert).also { it.start() }
                     powerTrigger!!.isOn
                 }
-                
-                TriggerType.VOLUME, TriggerType.USB_HID, TriggerType.BT_HID -> volumeTrigger!!.isOn
+                TriggerType.USB_HID -> {
+                    if (hidTrigger == null) {
+                        hidTrigger = HidKeyboardTrigger(dwellMs = s.debounceMs.toLong()).apply {
+                            configure(cachedUsbHidKey)
+                            setCallback(object : HidKeyboardTrigger.Callback {
+                                override fun onTriggerChanged(active: Boolean) {
+                                    hidFlow.value = active  // update flow
+                                }
+                            })
+                        }
+                    } else {
+                        hidTrigger?.configure(cachedUsbHidKey)
+                    }
+                    hidFlow // <-- ini yang return, sesuai tipe Flow<Boolean>
+                }
+
+                TriggerType.VOLUME, TriggerType.BT_HID -> volumeTrigger!!.isOn
                 else -> MutableStateFlow(false)
             }
 
@@ -111,6 +141,7 @@ class MainActivity : AppCompatActivity() {
                                 // play-once -> balik ke IDLE
                                 when (s.trigger) {
                                     TriggerType.VOLUME -> volumeTrigger?.setState(false)
+                                    TriggerType.USB_HID -> hidTrigger?.reset()
                                     else -> { /* no-op */ }
                                 }
                             }
@@ -142,8 +173,35 @@ class MainActivity : AppCompatActivity() {
             }
 
             if (s.kiosk) KioskHelper.tryStartLockTask(this@MainActivity)
+
+            // (opsional) dengarkan perubahan setting agar live-update tanpa restart activity
+            launch {
+                Prefs.triggerSource(this@MainActivity).collect { str ->
+                    // sesuaikan parser kamu; contoh:
+                    cachedTrigger = TriggerType.valueOf(str)
+                }
+            }
+            launch {
+                Prefs.usbHidKey(this@MainActivity).collect { key ->
+                    cachedUsbHidKey = key
+                    hidTrigger?.configure(key)
+                }
+            }
         }
 
+    }
+
+    // + intercept semua KeyEvent untuk USB_HID
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        // biarkan volume ke handler lama
+        if (event.keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || event.keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+            // pass
+        } else {
+            if (cachedTrigger == TriggerType.USB_HID) {
+                if (hidTrigger?.handleKeyEvent(event) == true) return true
+            }
+        }
+        return super.dispatchKeyEvent(event)
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
@@ -170,6 +228,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        val root = findViewById<View>(android.R.id.content)
+        root.isFocusableInTouchMode = true
+        root.requestFocus()
         enableImmersive()
         startKioskModeIfPossible()
         ensureKioskService()

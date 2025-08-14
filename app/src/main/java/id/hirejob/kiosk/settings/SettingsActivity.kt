@@ -22,8 +22,8 @@ import android.widget.Toast
 import id.hirejob.kiosk.R
 import id.hirejob.kiosk.ui.stopKioskModeIfAny
 import id.hirejob.kiosk.ui.startKioskModeIfPossible
-
-
+import android.content.ComponentName
+import android.content.pm.PackageManager
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.preference.Preference
 
@@ -32,6 +32,7 @@ class DsStore(private val context: Context) : PreferenceDataStore() {
     override fun putString(key: String, value: String?) {
         lifecycleScopeOrBlocking {
             when (key) {
+                Prefs.K_USB_HID      -> Prefs.setUsbHidKey(context, (value ?: "F9").trim())
                 Prefs.K_VIDEO_URI        -> Prefs.setVideoUri(context, value.orEmpty())
                 Prefs.K_IMAGE_URI        -> Prefs.setImageUri(context, value.orEmpty())
                 Prefs.K_TRIGGER_SOURCE   -> Prefs.setTriggerSource(context, value.orEmpty())
@@ -42,6 +43,7 @@ class DsStore(private val context: Context) : PreferenceDataStore() {
     }
     override fun getString(key: String, defValue: String?): String = runBlocking {
         when (key) {
+            Prefs.K_USB_HID      -> Prefs.usbHidKey(context).first()
             Prefs.K_VIDEO_URI        -> Prefs.videoUri(context).first()
             Prefs.K_IMAGE_URI        -> Prefs.imageUri(context).first()
             Prefs.K_TRIGGER_SOURCE   -> Prefs.triggerSource(context).first()
@@ -55,7 +57,20 @@ class DsStore(private val context: Context) : PreferenceDataStore() {
         when (key) {
             Prefs.K_LOOP_VIDEO -> Prefs.setLoopVideo(context, value)
             Prefs.K_AUTOSTART  -> Prefs.setAutostart(context, value)
-            Prefs.K_KIOSK_MODE -> Prefs.setKioskMode(context, value)
+            Prefs.K_KIOSK_MODE   -> {
+                Prefs.setKioskMode(context, value)
+                toggleHomeComponent(context, value)
+
+                // optional: paksa user pilih launcher sekarang
+                if (value) {
+                    // kirim HOME supaya chooser muncul; user pilih HireKiosk -> Always
+                    val i = Intent(Intent.ACTION_MAIN).apply {
+                        addCategory(Intent.CATEGORY_HOME)
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
+                    context.startActivity(i)
+                }
+            }
             Prefs.K_DIAGNOSTIC -> Prefs.setDiagnostic(context, value)
             Prefs.K_POWER_INVERT -> Prefs.setPowerInvert(context, value)
             else -> throw IllegalArgumentException("Unknown key: $key")
@@ -90,6 +105,17 @@ class DsStore(private val context: Context) : PreferenceDataStore() {
 
     private inline fun lifecycleScopeOrBlocking(crossinline block: suspend () -> Unit) {
         (context as? AppCompatActivity)?.lifecycleScope?.launch { block() } ?: runBlocking { block() }
+    }
+
+    private fun toggleHomeComponent(context: Context, enable: Boolean) {
+        val pm = context.packageManager
+        val comp = ComponentName(context, "id.hirejob.kiosk.ui.KioskHomeActivity")
+        pm.setComponentEnabledSetting(
+            comp,
+            if (enable) PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+            else PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+            PackageManager.DONT_KILL_APP
+        )
     }
 }
 

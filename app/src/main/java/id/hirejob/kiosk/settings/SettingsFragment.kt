@@ -3,6 +3,7 @@ package id.hirejob.kiosk.settings
 
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import android.os.Bundle
 import android.text.InputType
 import androidx.activity.result.contract.ActivityResultContracts
@@ -45,18 +46,17 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
     }
 
+    private fun validateUsbHidKey(input: String): Boolean {
+        if (input.isBlank()) return true // biarkan, nanti default di model
+        val s = input.uppercase()
+        if (s.matches(Regex("^F(1[0-2]|[1-9])$"))) return true
+        return input.trim().length == 1
+    }
+
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         // bridge ke DataStore
         preferenceManager.preferenceDataStore = DsStore(requireContext().applicationContext)
         setPreferencesFromResource(R.xml.preferences, rootKey)
-
-        // findPreference<SwitchPreferenceCompat>("power_invert")
-        //     ?.setOnPreferenceChangeListener { _, newValue ->
-        //     viewLifecycleOwner.lifecycleScope.launch {
-        //         Prefs.setPowerInvert(requireContext(), newValue as Boolean)
-        //     }
-        //     true
-        // }
 
         findPreference<Preference>(Prefs.K_VIDEO_URI)?.setOnPreferenceClickListener {
             pickVideo.launch(arrayOf("video/*"))
@@ -77,57 +77,34 @@ class SettingsFragment : PreferenceFragmentCompat() {
         findPreference<EditTextPreference>(Prefs.K_MIN_IDLE_MS)
             ?.setOnBindEditTextListener { it.inputType = InputType.TYPE_CLASS_NUMBER }
 
-        // hint text
-        // findPreference<EditTextPreference>(Prefs.K_VIDEO_URI)
-        //     ?.setOnBindEditTextListener { it.hint = "Path or URI to the video file" }
-        // findPreference<EditTextPreference>(Prefs.K_IMAGE_URI)
-        //     ?.setOnBindEditTextListener { it.hint = "Path or URI to the image/GIF file" }
-
         // summary otomatis
         findPreference<ListPreference>(Prefs.K_TRIGGER_SOURCE)
             ?.setSummaryProvider(ListPreference.SimpleSummaryProvider.getInstance())
+
+        // USB HID key
+        val usb = findPreference<EditTextPreference>("usb_hid_key")
+
+        usb?.setOnBindEditTextListener { et ->
+            et.maxLines = 1
+            et.isSingleLine = true
+        }
+
+        usb?.setOnPreferenceChangeListener { _, new ->
+            val raw = (new as? String)?.trim().orEmpty()
+            val ok = validateUsbHidKey(raw)
+            if (!ok) {
+                Toast.makeText(requireContext(),
+                    "Isi F1..F12 atau tepat 1 karakter.",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            ok
+        }
+
+        // tampilkan ringkasannya rapi (F9 atau char)
+        usb?.summaryProvider = Preference.SummaryProvider<EditTextPreference> { pref ->
+            val v = (pref.text ?: "F9").trim()
+            "Saat ini: ${v.ifBlank { "F9" }}"
+        }
     }
 }
-
-// class SettingsFragment : PreferenceFragmentCompat() {
-
-//     private val pickVideo = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-//         uri ?: return@registerForActivityResult
-//         try {
-//             requireContext().contentResolver.takePersistableUriPermission(
-//                 uri, Intent.FLAG_GRANT_READ_URI_PERMISSION
-//             )
-//         } catch (_: SecurityException) { /* beberapa emulator bisa abaikan */ }
-
-//         viewLifecycleOwner.lifecycleScope.launch {
-//             Prefs.setVideoUri(requireContext(), uri.toString())
-//             findPreference<Preference>("video_uri")?.summary = uri.toString()
-//         }
-//     }
-
-//     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-//         setPreferencesFromResource(R.xml.preferences, rootKey)
-
-//         // Tampilkan nilai saat ini
-//         viewLifecycleOwner.lifecycleScope.launch {
-//             val s = Prefs.readAll(requireContext())
-//             findPreference<Preference>("video_uri")?.summary = s.videoUri ?: ""
-//         }
-
-//         // Klik "Video" => buka SAF
-//         findPreference<Preference>("video_uri")?.setOnPreferenceClickListener {
-//             pickVideo.launch(arrayOf("video/*"))
-//             true
-//         }
-
-//         // Klik "Reset Video" => kembali ke resource default
-//         findPreference<Preference>("reset_video")?.setOnPreferenceClickListener {
-//             val def = Uri.parse("android.resource://${requireContext().packageName}/${R.raw.anim}")
-//             viewLifecycleOwner.lifecycleScope.launch {
-//                 Prefs.setVideoUri(requireContext(), def.toString())
-//                 findPreference<Preference>("video_uri")?.summary = def.toString()
-//             }
-//             true
-//         }
-//     }
-// }

@@ -35,10 +35,19 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.HOME" />
             </intent-filter>
         </activity>
-
+        <!-- HOME launcher stub: di-enable saat Kiosk Mode ON -->
+        <activity
+            android:name="id.hirejob.kiosk.ui.KioskHomeActivity"
+            android:exported="true"
+            android:enabled="false">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.HOME" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <!-- Settings -->
         <activity
             android:name="id.hirejob.kiosk.settings.SettingsActivity"
@@ -68,15 +77,6 @@
             </intent-filter>
         </receiver>
 
-        <receiver
-            android:name=".receiver.BootReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
-                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED"/>
-                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
-            </intent-filter>
-        </receiver>
 
         <!-- Foreground service untuk HTTP/BLE (kalau sudah diimplementasikan) -->
         <service

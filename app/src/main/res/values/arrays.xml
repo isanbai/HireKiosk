@@ -3,6 +3,7 @@
         <item>None</item>
         <item>VOLUME</item>
         <item>POWER</item>
+        <item>USB_HID</item>
         <item>HTTP</item>
         <item>GPIO</item>
         <item>BLE</item>
@@ -11,6 +12,7 @@
         <item>None</item>
         <item>VOLUME</item>
         <item>POWER</item>
+        <item>USB_HID</item>
         <item>HTTP</item>
         <item>BLE</item>
         <item>GPIO</item>

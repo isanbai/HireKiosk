@@ -16,11 +16,11 @@ private val Context.dataStore by preferencesDataStore(name = "kiosk_prefs")
 enum class TriggerType { USB_HID, BT_HID, HEADSET, HTTP, BLE_GATT, VOLUME, POWER }
 
 object Prefs {
-    // private val POWER_INVERT = booleanPreferencesKey("power_invert")
     // ---------- NAMA KEY (String) ----------
     // const val DEFAULT_VIDEO_URI = "file:///mnt/shared/Pictures/trim.mp4"
     // const val DEFAULT_IMAGE_URI = "file:///mnt/shared/Pictures/7.png"
     const val K_POWER_INVERT = "power_invert"
+    const val K_USB_HID   = "usb_hid_key"
     val DEFAULT_VIDEO_URI = "android.resource://id.hirejob.kiosk/${R.raw.anim}"
     val DEFAULT_IMAGE_URI = "android.resource://id.hirejob.kiosk/${R.drawable.idle}"
 
@@ -44,6 +44,7 @@ object Prefs {
 
     // ---------- Preferences.Key ----------
     val POWER_INVERT     = booleanPreferencesKey(K_POWER_INVERT)
+    val USB_HID      = stringPreferencesKey(K_USB_HID)
     val VIDEO_URI        = stringPreferencesKey(K_VIDEO_URI)
     val IMAGE_URI        = stringPreferencesKey(K_IMAGE_URI)
     val TRIGGER_SOURCE   = stringPreferencesKey(K_TRIGGER_SOURCE)
@@ -67,7 +68,7 @@ object Prefs {
         ctx.dataStore.data.map { p ->
             val triggerName = p[TRIGGER_SOURCE] ?: TriggerType.VOLUME.name
             val triggerEnum = runCatching { TriggerType.valueOf(triggerName) }.getOrElse { TriggerType.VOLUME }
-
+            val usbHidKey   = p[USB_HID] ?: "F9"
             val portFromInt  = p[HTTP_PORT]
             val portFromStr  = p[HTTP_PORT_STR]?.toIntOrNull()
             val httpPort     = portFromInt ?: portFromStr ?: HttpConstants.DEFAULT_HTTP_PORT
@@ -78,6 +79,7 @@ object Prefs {
             Settings(
                 // UBAH: pakai default kalau belum ada di DataStore
                 powerInvert   = p[POWER_INVERT] ?: true,
+                usbHidKey     = usbHidKey,
                 videoUri      = p[VIDEO_URI] ?: defaultVideo,
                 imageUri      = p[IMAGE_URI] ?: defaultImage,
 
@@ -104,6 +106,7 @@ object Prefs {
     /** Simpan semua field Settings */
     suspend fun saveSettings(ctx: Context, s: Settings) = write(ctx) {
         this[POWER_INVERT]     = s.powerInvert
+        this[USB_HID]      = s.usbHidKey
         s.videoUri?.let { this[VIDEO_URI] = it } ?: remove(VIDEO_URI)
         s.imageUri?.let { this[IMAGE_URI] = it } ?: remove(IMAGE_URI)
         this[LOOP_VIDEO]       = s.loopVideo
@@ -146,6 +149,9 @@ object Prefs {
     suspend fun setPowerInvert(ctx: Context, value: Boolean) {
         ctx.dataStore.edit { it[POWER_INVERT] = value }
     }
+
+    fun usbHidKey(ctx: Context) = ctx.dataStore.data.map { it[USB_HID] ?: "F9" }
+    suspend fun setUsbHidKey(ctx: Context, v: String) = ctx.dataStore.edit { it[USB_HID] = v }
 
     fun videoUri(ctx: Context) = ctx.dataStore.data.map {
         it[VIDEO_URI] ?: "android.resource://id.hirejob.kiosk/${R.raw.anim}"
@@ -192,6 +198,7 @@ object Prefs {
 }
 data class Settings(
     val powerInvert: Boolean = true,
+    val usbHidKey: String = "F9",
     val videoUri: String? = "file:///mnt/shared/Pictures/trim.mp4",
     val imageUri: String? = "file:///mnt/shared/Pictures/7.png",
     val loopVideo: Boolean = true,

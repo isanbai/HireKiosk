@@ -29,6 +29,14 @@
             app:useSimpleSummaryProvider="true" />
 
         <EditTextPreference
+            android:key="usb_hid_key"
+            android:title="USB HID"
+            android:dialogTitle="USB HID Key"
+            android:dialogMessage="Masukkan F1..F12 atau 1 karakter (contoh: a). Default F9."
+            android:defaultValue="F9"
+            app:useSimpleSummaryProvider="true" />
+
+        <EditTextPreference
             android:key="debounce_ms"
             android:title="Debounce Time (ms)"
             android:defaultValue="200"
