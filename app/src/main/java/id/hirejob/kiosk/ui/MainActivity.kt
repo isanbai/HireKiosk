@@ -5,6 +5,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import id.hirejob.kiosk.core.*
@@ -21,10 +22,12 @@ import id.hirejob.kiosk.settings.SettingsActivity
 import id.hirejob.kiosk.core.SecretGate
 import id.hirejob.kiosk.core.ensureKioskService
 import android.util.Log
+import id.hirejob.kiosk.R
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var b: ActivityMainBinding
+    private var overlayView: View? = null
     private var hasAutoPlayed = false
     private var video: VideoController? = null
     private var image: ImageController? = null
@@ -61,6 +64,8 @@ class MainActivity : AppCompatActivity() {
 
         video = VideoController(this, b.playerView)
         image = ImageController(b.imageView)
+        overlayView = layoutInflater.inflate( R.layout.overlay_logo, null)
+
         volumeTrigger = VolumeTrigger(this)
         powerTrigger = PowerTrigger(this)
 
@@ -100,6 +105,7 @@ class MainActivity : AppCompatActivity() {
                     UiState.ACTIVE -> {
                         b.playerView.visibility = View.VISIBLE
                         b.imageView.visibility = View.GONE
+                        (overlayView?.parent as? ViewGroup)?.removeView(overlayView)
                         s.videoUri?.let { uriStr ->
                             video!!.play(Uri.parse(uriStr), s.loopVideo) {
                                 // play-once -> balik ke IDLE
@@ -115,6 +121,11 @@ class MainActivity : AppCompatActivity() {
                         b.playerView.visibility = View.GONE
                         b.imageView.visibility = View.VISIBLE
                         image!!.show(s.imageUri?.let(Uri::parse))
+                        // tampilkan logo overlay
+                        val logo = findViewById<ViewGroup>(android.R.id.content)
+                        if (overlayView?.parent == null) {
+                            logo.addView(overlayView)
+                        }
                     }
                 }
                 if (s.diagnostic) b.root.announceForAccessibility("State ${st::class.simpleName}")
