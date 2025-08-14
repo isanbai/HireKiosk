@@ -54,7 +54,7 @@
 
         <SwitchPreferenceCompat
             android:key="power_invert"
-            android:title="ON saat DISCHARGING (kebalikan)"
+            android:title="ON saat DISCHARGING"
             android:summary="Jika aktif: ON ketika tidak charging, OFF ketika charging"
             android:defaultValue="true" />
 

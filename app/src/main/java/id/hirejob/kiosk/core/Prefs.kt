@@ -75,7 +75,7 @@ object Prefs {
 
             Settings(
                 // UBAH: pakai default kalau belum ada di DataStore
-                powerInvert   = p[POWER_INVERT] ?: false,
+                powerInvert   = p[POWER_INVERT] ?: true,
                 videoUri      = p[VIDEO_URI] ?: defaultVideo,
                 imageUri      = p[IMAGE_URI] ?: defaultImage,
 
