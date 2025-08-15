@@ -1,16 +1,29 @@
 package id.hirejob.kiosk.core
 
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
+import android.os.SystemClock
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
 
-sealed class UiState { data object IDLE: UiState(); data object ACTIVE: UiState() }
+sealed class UiState {
+    data object IDLE : UiState()
+
+    data object ACTIVE : UiState()
+}
 
 class StateMachine(
     private val scope: CoroutineScope,
     triggerFlow: Flow<Boolean>,
     private val debounceMs: Long,
     private val minActiveMs: Long,
-    private val minIdleMs: Long
+    private val minIdleMs: Long,
 ) {
     private val _state = MutableStateFlow<UiState>(UiState.IDLE)
     val state: StateFlow<UiState> = _state.asStateFlow()
@@ -22,7 +35,7 @@ class StateMachine(
                 .distinctUntilChanged()
                 .collect { on ->
                     when (on) {
-                        true  -> goActive()
+                        true -> goActive()
                         false -> goIdle()
                     }
                 }
@@ -52,5 +65,7 @@ class StateMachine(
         }
     }
 
-    private object SystemClock { fun now() = System.currentTimeMillis() }
+    private object SystemClock {
+        fun now() = System.currentTimeMillis()
+    }
 }

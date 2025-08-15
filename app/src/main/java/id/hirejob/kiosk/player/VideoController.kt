@@ -1,28 +1,29 @@
 package id.hirejob.kiosk.player
 
 import android.content.Context
+import android.graphics.Color
 import android.net.Uri
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.ui.PlayerView
 import androidx.media3.ui.AspectRatioFrameLayout
-import android.graphics.Color
+import androidx.media3.ui.PlayerView
 
 class VideoController(
     ctx: Context,
-    private val playerView: PlayerView
+    private val playerView: PlayerView,
 ) {
-    private val exo = ExoPlayer.Builder(ctx).build().apply {
-        volume = 0f // muted by default
-        playerView.player = this
-        playerView.useController = false
-        // ⬇️ Tambahan agar video full-bleed
-        playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM
-        
-        playerView.setShutterBackgroundColor(Color.TRANSPARENT)
-        playerView.setKeepContentOnPlayerReset(true)
-    }
+    private val exo =
+        ExoPlayer.Builder(ctx).build().apply {
+            volume = 0f // muted by default
+            playerView.player = this
+            playerView.useController = false
+            // ⬇️ Tambahan agar video full-bleed
+            playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM
+
+            playerView.setShutterBackgroundColor(Color.TRANSPARENT)
+            playerView.setKeepContentOnPlayerReset(true)
+        }
 
     private var endListener: Player.Listener? = null
 
@@ -30,7 +31,11 @@ class VideoController(
      * Play the given [uri].
      * If [loop] is true, repeat forever. Otherwise, play once then invoke [onEnded].
      */
-    fun play(uri: Uri, loop: Boolean, onEnded: (() -> Unit)? = null) {
+    fun play(
+        uri: Uri,
+        loop: Boolean,
+        onEnded: (() -> Unit)? = null,
+    ) {
         // Bersihkan listener lama agar tidak dobel
         endListener?.let { exo.removeListener(it) }
         endListener = null
@@ -42,16 +47,17 @@ class VideoController(
         // exo.videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING
 
         if (!loop && onEnded != null) {
-            endListener = object : Player.Listener {
-                override fun onPlaybackStateChanged(state: Int) {
-                    if (state == Player.STATE_ENDED) {
-                        // Lepas listener supaya hanya sekali
-                        endListener?.let { exo.removeListener(it) }
-                        endListener = null
-                        onEnded.invoke()
+            endListener =
+                object : Player.Listener {
+                    override fun onPlaybackStateChanged(state: Int) {
+                        if (state == Player.STATE_ENDED) {
+                            // Lepas listener supaya hanya sekali
+                            endListener?.let { exo.removeListener(it) }
+                            endListener = null
+                            onEnded.invoke()
+                        }
                     }
                 }
-            }
             exo.addListener(endListener!!)
         }
     }

@@ -2,52 +2,59 @@ package id.hirejob.kiosk.trigger
 
 import android.util.Log
 import fi.iki.elonen.NanoHTTPD
+import id.hirejob.kiosk.core.HttpConstants
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.json.JSONObject
-import id.hirejob.kiosk.core.HttpConstants
 
 class HttpTrigger(
     private val host: String = HttpConstants.DEFAULT_HTTP_HOST,
     private val port: Int = HttpConstants.DEFAULT_HTTP_PORT,
     private val timeoutMs: Int = HttpConstants.SOCKET_READ_TIMEOUT,
-    ) : TriggerSource {
+) : TriggerSource {
     private val _isOn = MutableStateFlow(false)
     override val isOn = _isOn.asStateFlow()
     private var server: NanoHTTPD? = null
 
     override fun start() {
         if (server != null) return
-        server = object : NanoHTTPD(port) {
-            override fun serve(session: IHTTPSession?): Response {
-                val uri = session?.uri ?: "/"
-                val method = session?.method
-                return when {
-                    method == Method.GET && uri == "/health" ->
-                        newFixedLengthResponse(Response.Status.OK, "text/plain", "OK")
-                    method == Method.POST && uri == "/trigger" -> {
-                        session.parseBody(HashMap())
-                        val body = session.parms["postData"] ?: ""
-                        return try {
-                            val j = JSONObject(body)
-                            val state = j.optString("state").lowercase()
-                            when (state) {
-                                "on"  -> _isOn.value = true
-                                "off" -> _isOn.value = false
+        server =
+            object : NanoHTTPD(port) {
+                override fun serve(session: IHTTPSession?): Response {
+                    val uri = session?.uri ?: "/"
+                    val method = session?.method
+                    return when {
+                        method == Method.GET && uri == "/health" ->
+                            newFixedLengthResponse(Response.Status.OK, "text/plain", "OK")
+                        method == Method.POST && uri == "/trigger" -> {
+                            session.parseBody(HashMap())
+                            val body = session.parms["postData"] ?: ""
+                            return try {
+                                val j = JSONObject(body)
+                                val state = j.optString("state").lowercase()
+                                when (state) {
+                                    "on" -> _isOn.value = true
+                                    "off" -> _isOn.value = false
+                                }
+                                newFixedLengthResponse("{\"ok\":true}")
+                            } catch (t: Throwable) {
+                                Log.e("HttpTrigger", "bad body", t)
+                                newFixedLengthResponse(
+                                    Response.Status.BAD_REQUEST, "application/json",
+                                    "{\"ok\":false}",
+                                )
                             }
-                            newFixedLengthResponse("{\"ok\":true}")
-                        } catch (t: Throwable) {
-                            Log.e("HttpTrigger", "bad body", t)
-                            newFixedLengthResponse(Response.Status.BAD_REQUEST, "application/json",
-                                "{\"ok\":false}")
                         }
+                        else -> newFixedLengthResponse(Response.Status.NOT_FOUND, "text/plain", "404")
                     }
-                    else -> newFixedLengthResponse(Response.Status.NOT_FOUND, "text/plain", "404")
+                }
+            }.apply {
+                try {
+                    start(timeoutMs, false)
+                } catch (t: Throwable) {
+                    Log.e("HttpTrigger", "start", t)
                 }
             }
-        }.apply {
-            try { start(timeoutMs, false) } catch (t: Throwable) { Log.e("HttpTrigger","start",t) }
-        }
     }
 
     override fun stop() {

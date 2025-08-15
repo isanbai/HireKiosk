@@ -7,13 +7,21 @@ import android.os.Build
 
 fun Activity.startKioskModeIfPossible() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-        try { startLockTask() } catch (_: Throwable) { /* ignore */ }
+        try {
+            startLockTask()
+        } catch (_: Throwable) {
+            // ignore
+        }
     }
 }
 
 fun Activity.stopKioskModeIfAny() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-        try { stopLockTask() } catch (_: Throwable) { /* ignore */ }
+        try {
+            stopLockTask()
+        } catch (_: Throwable) {
+            // ignore
+        }
     }
 }
 
@@ -29,6 +37,10 @@ fun Context.canLockTask(): Boolean {
         val dpm = getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             dpm.isLockTaskPermitted(packageName) || dpm.isDeviceOwnerApp(packageName)
-        } else true
-    } catch (_: Throwable) { false }
+        } else {
+            true
+        }
+    } catch (_: Throwable) {
+        false
+    }
 }

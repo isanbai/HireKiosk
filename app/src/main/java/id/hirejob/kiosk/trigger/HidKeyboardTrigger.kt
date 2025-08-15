@@ -6,10 +6,11 @@ import android.view.KeyEvent
 import androidx.annotation.MainThread
 
 class HidKeyboardTrigger(
-    private val dwellMs: Long = 200L
+    private val dwellMs: Long = 200L,
 ) {
-
-    interface Callback { fun onTriggerChanged(active: Boolean) }
+    interface Callback {
+        fun onTriggerChanged(active: Boolean)
+    }
 
     private var callback: Callback? = null
     private var targetKeyCodes: Set<Int> = emptySet()
@@ -20,7 +21,9 @@ class HidKeyboardTrigger(
         targetKeyCodes = parseUsbHidKey(usbHidKey)
     }
 
-    fun setCallback(cb: Callback?) { callback = cb }
+    fun setCallback(cb: Callback?) {
+        callback = cb
+    }
 
     /** Panggil dari Activity.dispatchKeyEvent saat source = USB_HID */
     @MainThread
@@ -42,7 +45,6 @@ class HidKeyboardTrigger(
         armed = true
         callback?.onTriggerChanged(false)
     }
-
 
     private fun parseUsbHidKey(inputRaw: String?): Set<Int> {
         val input = (inputRaw ?: "F9").trim()
@@ -75,19 +77,20 @@ class HidKeyboardTrigger(
         return setOf(KeyEvent.KEYCODE_F9)
     }
 
-    private fun fKeyCode(n: Int): Int = when (n) {
-        1 -> KeyEvent.KEYCODE_F1
-        2 -> KeyEvent.KEYCODE_F2
-        3 -> KeyEvent.KEYCODE_F3
-        4 -> KeyEvent.KEYCODE_F4
-        5 -> KeyEvent.KEYCODE_F5
-        6 -> KeyEvent.KEYCODE_F6
-        7 -> KeyEvent.KEYCODE_F7
-        8 -> KeyEvent.KEYCODE_F8
-        9 -> KeyEvent.KEYCODE_F9
-        10 -> KeyEvent.KEYCODE_F10
-        11 -> KeyEvent.KEYCODE_F11
-        12 -> KeyEvent.KEYCODE_F12
-        else -> KeyEvent.KEYCODE_F9
-    }
+    private fun fKeyCode(n: Int): Int =
+        when (n) {
+            1 -> KeyEvent.KEYCODE_F1
+            2 -> KeyEvent.KEYCODE_F2
+            3 -> KeyEvent.KEYCODE_F3
+            4 -> KeyEvent.KEYCODE_F4
+            5 -> KeyEvent.KEYCODE_F5
+            6 -> KeyEvent.KEYCODE_F6
+            7 -> KeyEvent.KEYCODE_F7
+            8 -> KeyEvent.KEYCODE_F8
+            9 -> KeyEvent.KEYCODE_F9
+            10 -> KeyEvent.KEYCODE_F10
+            11 -> KeyEvent.KEYCODE_F11
+            12 -> KeyEvent.KEYCODE_F12
+            else -> KeyEvent.KEYCODE_F9
+        }
 }

@@ -2,49 +2,52 @@
 package id.hirejob.kiosk.settings
 
 import android.content.Intent
-import android.net.Uri
-import android.widget.Toast
 import android.os.Bundle
 import android.text.InputType
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.preference.Preference
-import androidx.preference.PreferenceFragmentCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
-import androidx.preference.SwitchPreferenceCompat
-import androidx.lifecycle.lifecycleScope
+import androidx.preference.Preference
+import androidx.preference.PreferenceFragmentCompat
 import id.hirejob.kiosk.R
 import id.hirejob.kiosk.core.Prefs
 import kotlinx.coroutines.launch
 
-
 class SettingsFragment : PreferenceFragmentCompat() {
-
-    private val pickVideo = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        uri ?: return@registerForActivityResult
-        try {
-            requireContext().contentResolver.takePersistableUriPermission(
-                uri, Intent.FLAG_GRANT_READ_URI_PERMISSION
-            )
-        } catch (_: SecurityException) { /* beberapa emulator bisa abaikan */ }
-        viewLifecycleOwner.lifecycleScope.launch {
-            Prefs.setVideoUri(requireContext(), uri.toString())
-            findPreference<Preference>(Prefs.K_VIDEO_URI)?.summary = uri.toString()
+    private val pickVideo =
+        registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            uri ?: return@registerForActivityResult
+            try {
+                requireContext().contentResolver.takePersistableUriPermission(
+                    uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION,
+                )
+            } catch (_: SecurityException) {
+                // beberapa emulator bisa abaikan
+            }
+            viewLifecycleOwner.lifecycleScope.launch {
+                Prefs.setVideoUri(requireContext(), uri.toString())
+                findPreference<Preference>(Prefs.K_VIDEO_URI)?.summary = uri.toString()
+            }
         }
-    }
 
-    private val pickImage = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        uri ?: return@registerForActivityResult
-        try {
-            requireContext().contentResolver.takePersistableUriPermission(
-                uri, Intent.FLAG_GRANT_READ_URI_PERMISSION
-            )
-        } catch (_: SecurityException) { }
-        viewLifecycleOwner.lifecycleScope.launch {
-            Prefs.setImageUri(requireContext(), uri.toString())
-            findPreference<Preference>(Prefs.K_IMAGE_URI)?.summary = uri.toString()
+    private val pickImage =
+        registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            uri ?: return@registerForActivityResult
+            try {
+                requireContext().contentResolver.takePersistableUriPermission(
+                    uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION,
+                )
+            } catch (_: SecurityException) {
+            }
+            viewLifecycleOwner.lifecycleScope.launch {
+                Prefs.setImageUri(requireContext(), uri.toString())
+                findPreference<Preference>(Prefs.K_IMAGE_URI)?.summary = uri.toString()
+            }
         }
-    }
 
     private fun validateUsbHidKey(input: String): Boolean {
         if (input.isBlank()) return true // biarkan, nanti default di model
@@ -53,7 +56,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
         return input.trim().length == 1
     }
 
-    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+    override fun onCreatePreferences(
+        savedInstanceState: Bundle?,
+        rootKey: String?,
+    ) {
         // bridge ke DataStore
         preferenceManager.preferenceDataStore = DsStore(requireContext().applicationContext)
         setPreferencesFromResource(R.xml.preferences, rootKey)
@@ -93,18 +99,20 @@ class SettingsFragment : PreferenceFragmentCompat() {
             val raw = (new as? String)?.trim().orEmpty()
             val ok = validateUsbHidKey(raw)
             if (!ok) {
-                Toast.makeText(requireContext(),
+                Toast.makeText(
+                    requireContext(),
                     "Isi F1..F12 atau tepat 1 karakter.",
-                    Toast.LENGTH_SHORT
+                    Toast.LENGTH_SHORT,
                 ).show()
             }
             ok
         }
 
         // tampilkan ringkasannya rapi (F9 atau char)
-        usb?.summaryProvider = Preference.SummaryProvider<EditTextPreference> { pref ->
-            val v = (pref.text ?: "F9").trim()
-            "Saat ini: ${v.ifBlank { "F9" }}"
-        }
+        usb?.summaryProvider =
+            Preference.SummaryProvider<EditTextPreference> { pref ->
+                val v = (pref.text ?: "F9").trim()
+                "Saat ini: ${v.ifBlank { "F9" }}"
+            }
     }
 }

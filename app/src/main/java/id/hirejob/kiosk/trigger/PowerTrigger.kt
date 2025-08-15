@@ -20,24 +20,29 @@ import kotlinx.coroutines.flow.asStateFlow
  */
 class PowerTrigger(
     private val ctx: Context,
-    private val invert: Boolean = false
+    private val invert: Boolean = false,
 ) : TriggerSource {
-
-    companion object { private const val TAG = "PowerTrigger" }
+    companion object {
+        private const val TAG = "PowerTrigger"
+    }
 
     private val _isOn = MutableStateFlow(false)
     override val isOn = _isOn.asStateFlow()
 
     private var registered = false
 
-    private val rx = object : BroadcastReceiver() {
-        override fun onReceive(c: Context?, i: Intent?) {
-            val raw = isRawCharging(i)
-            val eff = if (invert) !raw else raw
-            Log.d(TAG, "onReceive(): action=${i?.action} status=${statusString(i)} raw=$raw invert=$invert -> isOn=$eff")
-            _isOn.value = eff
+    private val rx =
+        object : BroadcastReceiver() {
+            override fun onReceive(
+                c: Context?,
+                i: Intent?,
+            ) {
+                val raw = isRawCharging(i)
+                val eff = if (invert) !raw else raw
+                Log.d(TAG, "onReceive(): action=${i?.action} status=${statusString(i)} raw=$raw invert=$invert -> isOn=$eff")
+                _isOn.value = eff
+            }
         }
-    }
 
     override fun start() {
         if (registered) return
@@ -57,7 +62,10 @@ class PowerTrigger(
 
     override fun stop() {
         if (!registered) return
-        try { ctx.unregisterReceiver(rx) } catch (_: Throwable) {}
+        try {
+            ctx.unregisterReceiver(rx)
+        } catch (_: Throwable) {
+        }
         registered = false
     }
 
@@ -74,14 +82,15 @@ class PowerTrigger(
         if (i == null) return "null"
         val s = i.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
         val p = i.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0)
-        val sTxt = when (s) {
-            BatteryManager.BATTERY_STATUS_CHARGING     -> "CHARGING(2)"
-            BatteryManager.BATTERY_STATUS_FULL         -> "FULL(5)"
-            BatteryManager.BATTERY_STATUS_DISCHARGING  -> "DISCHARGING(3)"
-            BatteryManager.BATTERY_STATUS_NOT_CHARGING -> "NOT_CHARGING(4)"
-            BatteryManager.BATTERY_STATUS_UNKNOWN      -> "UNKNOWN(1)"
-            else                                       -> "($s)"
-        }
+        val sTxt =
+            when (s) {
+                BatteryManager.BATTERY_STATUS_CHARGING -> "CHARGING(2)"
+                BatteryManager.BATTERY_STATUS_FULL -> "FULL(5)"
+                BatteryManager.BATTERY_STATUS_DISCHARGING -> "DISCHARGING(3)"
+                BatteryManager.BATTERY_STATUS_NOT_CHARGING -> "NOT_CHARGING(4)"
+                BatteryManager.BATTERY_STATUS_UNKNOWN -> "UNKNOWN(1)"
+                else -> "($s)"
+            }
         // plugged: 0=unplugged, 1=AC, 2=USB, 4=wireless (bitmask)
         return "$sTxt plugged=$p"
     }

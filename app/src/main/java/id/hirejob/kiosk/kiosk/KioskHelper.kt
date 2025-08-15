@@ -7,7 +7,11 @@ import android.os.Build
 
 object KioskHelper {
     fun tryStartLockTask(activity: Activity) {
-        try { activity.startLockTask() } catch (_: Throwable) { /* screen pinning fallback */ }
+        try {
+            activity.startLockTask()
+        } catch (_: Throwable) {
+            // screen pinning fallback
+        }
     }
 
     fun isDeviceOwner(ctx: Context): Boolean {
