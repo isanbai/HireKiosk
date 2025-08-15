@@ -1,5 +1,6 @@
-// kosong saja; versi plugin sudah di settings.gradle.kts
-plugins {}
+plugins {
+    
+}
 
 tasks.wrapper {
     gradleVersion = "8.9"      // supaya wrapper konsisten di 8.9

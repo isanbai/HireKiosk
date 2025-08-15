@@ -148,11 +148,6 @@ object Prefs {
         return true
     }
 
-    private fun sKey(name: String) = stringPreferencesKey(name)
-
-    private fun bKey(name: String) = booleanPreferencesKey(name)
-
-    private fun iKey(name: String) = intPreferencesKey(name)
 
     // ===== Helper per-field (Flow)
     fun powerInvert(ctx: Context) = ctx.dataStore.data.map { it[POWER_INVERT] ?: true }

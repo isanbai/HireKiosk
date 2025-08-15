@@ -1,0 +1,46 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:MainActivity.kt$MainActivity$override fun onCreate(savedInstanceState: Bundle?)</ID>
+    <ID>CyclomaticComplexMethod:Prefs.kt$Prefs$suspend fun readAll(ctx: Context): Settings</ID>
+    <ID>LongMethod:MainActivity.kt$MainActivity$override fun onCreate(savedInstanceState: Bundle?)</ID>
+    <ID>LongParameterList:SecretGate.kt$SecretGate$( private val hostActivity: Activity, private val onUnlocked: () -&gt; Unit, private val enableTripleTap: Boolean = true, private val enableLongPress: Boolean = true, private val tapsRequired: Int = 3, private val windowMs: Long = 1000L, private val longPressMs: Long = 800L, private val cornerOnlyDp: Int? = null, )</ID>
+    <ID>MagicNumber:HidKeyboardTrigger.kt$HidKeyboardTrigger$10</ID>
+    <ID>MagicNumber:HidKeyboardTrigger.kt$HidKeyboardTrigger$11</ID>
+    <ID>MagicNumber:HidKeyboardTrigger.kt$HidKeyboardTrigger$12</ID>
+    <ID>MagicNumber:HidKeyboardTrigger.kt$HidKeyboardTrigger$3</ID>
+    <ID>MagicNumber:HidKeyboardTrigger.kt$HidKeyboardTrigger$4</ID>
+    <ID>MagicNumber:HidKeyboardTrigger.kt$HidKeyboardTrigger$5</ID>
+    <ID>MagicNumber:HidKeyboardTrigger.kt$HidKeyboardTrigger$6</ID>
+    <ID>MagicNumber:HidKeyboardTrigger.kt$HidKeyboardTrigger$7</ID>
+    <ID>MagicNumber:HidKeyboardTrigger.kt$HidKeyboardTrigger$8</ID>
+    <ID>MagicNumber:HidKeyboardTrigger.kt$HidKeyboardTrigger$9</ID>
+    <ID>MagicNumber:KioskHelper.kt$KioskHelper$24</ID>
+    <ID>MagicNumber:KioskPolicy.kt$KioskPolicy$28</ID>
+    <ID>MagicNumber:KioskWatcher.kt$KioskWatcher$23</ID>
+    <ID>MagicNumber:KioskWatcher.kt$KioskWatcher$26</ID>
+    <ID>MagicNumber:KioskWatcher.kt$KioskWatcher$3000</ID>
+    <ID>MagicNumber:KioskWatcher.kt$KioskWatcher$7</ID>
+    <ID>MagicNumber:Prefs.kt$Prefs$1000</ID>
+    <ID>MagicNumber:Prefs.kt$Prefs$200</ID>
+    <ID>MagicNumber:Prefs.kt$Prefs$4</ID>
+    <ID>MagicNumber:Prefs.kt$Prefs$8</ID>
+    <ID>MagicNumber:SecretGate.kt$SecretGate$4</ID>
+    <ID>MagicNumber:SecretGate.kt$SecretGate$48</ID>
+    <ID>MagicNumber:SettingsActivity.kt$SettingsActivity$4</ID>
+    <ID>MagicNumber:SettingsActivity.kt$SettingsActivity$8</ID>
+    <ID>MaxLineLength:MainActivity.kt$MainActivity$"settings: trigger=${s.trigger} powerInvert=${s.powerInvert} loop=${s.loopVideo} video=${s.videoUri} image=${s.imageUri}"</ID>
+    <ID>MaxLineLength:MainActivity.kt$MainActivity$TriggerType.HTTP -&gt; httpTrigger?.stop()</ID>
+    <ID>MaxLineLength:PowerTrigger.kt$PowerTrigger.&lt;no name provided&gt;$Log.d(TAG, "onReceive(): action=${i?.action} status=${statusString(i)} raw=$raw invert=$invert -&gt; isOn=$eff")</ID>
+    <ID>ReturnCount:HidKeyboardTrigger.kt$HidKeyboardTrigger$@MainThread fun handleKeyEvent(ev: KeyEvent): Boolean</ID>
+    <ID>ReturnCount:HidKeyboardTrigger.kt$HidKeyboardTrigger$private fun parseUsbHidKey(inputRaw: String?): Set&lt;Int&gt;</ID>
+    <ID>ReturnCount:SecretGate.kt$SecretGate$override fun onSingleTapConfirmed(e: MotionEvent): Boolean</ID>
+    <ID>ReturnCount:SettingsFragment.kt$SettingsFragment$private fun validateUsbHidKey(input: String): Boolean</ID>
+    <ID>ReturnCount:VolumeTrigger.kt$VolumeTrigger$fun onKey( keyCode: Int, event: KeyEvent?, ): Boolean</ID>
+    <ID>TooGenericExceptionCaught:HttpTrigger.kt$HttpTrigger$t: Throwable</ID>
+    <ID>TooGenericExceptionCaught:HttpTrigger.kt$HttpTrigger.&lt;no name provided&gt;$t: Throwable</ID>
+    <ID>TooManyFunctions:Prefs.kt$Prefs</ID>
+    <ID>UnusedPrivateProperty:VolumeTrigger.kt$VolumeTrigger$private val activity: Activity</ID>
+  </CurrentIssues>
+</SmellBaseline>

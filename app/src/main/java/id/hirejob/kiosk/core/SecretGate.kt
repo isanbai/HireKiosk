@@ -67,9 +67,6 @@ class SecretGate(
     }
 
     private fun requestPin() {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(hostActivity)
-        val savedPin = prefs.getString("adminPin", "2580")
-
         val input =
             EditText(hostActivity).apply {
                 inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_VARIATION_PASSWORD

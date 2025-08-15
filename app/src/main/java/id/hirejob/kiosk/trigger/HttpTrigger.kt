@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import org.json.JSONObject
 
 class HttpTrigger(
-    private val host: String = HttpConstants.DEFAULT_HTTP_HOST,
     private val port: Int = HttpConstants.DEFAULT_HTTP_PORT,
     private val timeoutMs: Int = HttpConstants.SOCKET_READ_TIMEOUT,
 ) : TriggerSource {

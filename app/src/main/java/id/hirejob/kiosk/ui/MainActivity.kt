@@ -38,11 +38,10 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var b: ActivityMainBinding
     private var overlayView: View? = null
-    private var hasAutoPlayed = false
-    private var video: VideoController? = null
-    private var image: ImageController? = null
-    private var volumeTrigger: VolumeTrigger? = null
-    private var powerTrigger: PowerTrigger? = null
+    private lateinit var video: VideoController
+    private lateinit var image: ImageController
+    private lateinit var volumeTrigger: VolumeTrigger
+    private lateinit var powerTrigger: PowerTrigger
     private var hidTrigger: HidKeyboardTrigger? = null
     private val hidFlow = MutableStateFlow(false)
     private var httpTrigger: HttpTrigger? = null
@@ -79,10 +78,9 @@ class MainActivity : AppCompatActivity() {
 
         video = VideoController(this, b.playerView)
         image = ImageController(b.imageView)
-        overlayView = layoutInflater.inflate(R.layout.overlay_logo, null)
-
         volumeTrigger = VolumeTrigger(this)
-        powerTrigger = PowerTrigger(this)
+        powerTrigger = PowerTrigger(this)        
+        overlayView = layoutInflater.inflate(R.layout.overlay_logo, null)
 
         lifecycleScope.launch {
             val s = Prefs.readAll(this@MainActivity)
@@ -95,18 +93,15 @@ class MainActivity : AppCompatActivity() {
             )
 
             // show current idle image at start
-            image!!.show(s.imageUri?.let(Uri::parse))
+            image.show(s.imageUri?.let(Uri::parse))
 
             val triggerFlow: Flow<Boolean> =
                 when (s.trigger) {
-                    TriggerType.HTTP -> {
-                        httpTrigger = HttpTrigger(s.httpPortStr).also { it.start() }
-                        httpTrigger!!.isOn
-                    }
                     TriggerType.POWER -> {
                         Log.d("MainActivity", "Using POWER trigger (invert=${s.powerInvert})")
-                        powerTrigger = PowerTrigger(applicationContext, invert = s.powerInvert).also { it.start() }
-                        powerTrigger!!.isOn
+                        val pt = PowerTrigger(applicationContext, invert = s.powerInvert).also { it.start() }
+                        powerTrigger = pt
+                        pt.isOn // <-- ini yang return, sesuai tipe Flow<Boolean>
                     }
                     TriggerType.USB_HID -> {
                         if (hidTrigger == null) {
@@ -127,7 +122,7 @@ class MainActivity : AppCompatActivity() {
                         hidFlow // <-- ini yang return, sesuai tipe Flow<Boolean>
                     }
 
-                    TriggerType.VOLUME, TriggerType.BT_HID -> volumeTrigger!!.isOn
+                    TriggerType.VOLUME, TriggerType.BT_HID -> volumeTrigger.isOn
                     else -> MutableStateFlow(false)
                 }
 
@@ -148,15 +143,15 @@ class MainActivity : AppCompatActivity() {
                         b.imageView.visibility = View.GONE
                         (overlayView?.parent as? ViewGroup)?.removeView(overlayView)
                         s.videoUri?.let { uriStr ->
-                            video!!.play(Uri.parse(uriStr), s.loopVideo) {
+                            video.play(Uri.parse(uriStr), s.loopVideo) {
                                 // play-once -> balik ke IDLE
                                 if (!s.loopVideo) {
                                     when (s.trigger) {
-                                        TriggerType.VOLUME -> volumeTrigger?.setState(false)
-                                        // Edge-based: kamu boleh reset agar kembali ke IDLE
+                                        TriggerType.VOLUME -> if (this@MainActivity::volumeTrigger.isInitialized) {
+                                            volumeTrigger.setState(false)
+                                        } 
                                         TriggerType.USB_HID -> hidTrigger?.reset() // siapkan fungsi reset bila perlu
                                         TriggerType.HTTP -> httpTrigger?.stop() // atau _isOn.value=false jika kamu jadikan Flow
-                                        // Level-based: biarkan mengikuti sumber
                                         TriggerType.POWER -> { /* no-op */ }
                                         else -> { /* HEADSET/BT/BLE bila nanti ada */ }
                                     }
@@ -165,10 +160,10 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                     UiState.IDLE -> {
-                        video!!.stop()
+                        if (this@MainActivity::video.isInitialized) this@MainActivity.video.stop()
                         b.playerView.visibility = View.GONE
                         b.imageView.visibility = View.VISIBLE
-                        image!!.show(s.imageUri?.let(Uri::parse))
+                        image.show(s.imageUri?.let(Uri::parse))
                         // tampilkan logo overlay
                         val logo = findViewById<ViewGroup>(android.R.id.content)
                         if (overlayView?.parent == null) {
@@ -181,7 +176,9 @@ class MainActivity : AppCompatActivity() {
 
             // === AUTO-PLAY SEKALI SETELAH SM SIAP ===
             if (s.trigger == TriggerType.VOLUME) {
-                volumeTrigger?.setState(true)
+                if (this@MainActivity::volumeTrigger.isInitialized) {
+                    this@MainActivity.volumeTrigger.setState(true)
+                }
             }
 
             // (Opsional) Start service kalau HTTP
@@ -226,7 +223,9 @@ class MainActivity : AppCompatActivity() {
     ): Boolean {
         if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
             // Teruskan ke VolumeTrigger; jika di-handle, konsumsi event
-            return volumeTrigger?.onKey(keyCode, event) ?: true
+            return if (this::volumeTrigger.isInitialized) {
+                volumeTrigger.onKey(keyCode, event)
+            } else true
         }
         return super.onKeyDown(keyCode, event)
     }
@@ -243,8 +242,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        volumeTrigger?.stop()
-        video?.release()
+        if (this::volumeTrigger.isInitialized) volumeTrigger.stop()
+        if (this::video.isInitialized) video.release()
         super.onDestroy()
     }
 

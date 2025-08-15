@@ -1,9 +1,24 @@
 plugins {
     id("com.android.application")
     kotlin("android")
-    id("org.jlleitschuh.gradle.ktlint")
+    // id("org.jlleitschuh.gradle.ktlint")
+    id("io.gitlab.arturbosch.detekt")
     // kapt kalau mau pakai Glide compiler (opsional)
     // kotlin("kapt")
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    allRules = false
+    autoCorrect = true
+    // opsional: tulis baseline agar warning lama di-skip
+    // baseline = file("$projectDir/detekt-baseline.xml")
+    reports {
+        html.required.set(true) // laporan di build/reports/detekt/detekt.html
+        xml.required.set(true)
+        txt.required.set(false)
+        sarif.required.set(false)
+    }
 }
 
 android {
